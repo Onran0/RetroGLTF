@@ -1,6 +1,6 @@
 # RetroGLTF
 
-**RetroGLTF** - is a library for **LWJGL 2** for parsing, validating and render **glTF 2.0** models
+**RetroGLTF** - is a library for **LWJGL 2** for parsing, loading and render **glTF 2.0** models
 (including .glb).
 
 ## Building
