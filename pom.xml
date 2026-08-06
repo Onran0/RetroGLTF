@@ -30,6 +30,18 @@
             <artifactId>lwjgl_util</artifactId>
             <version>${lwjgl.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20231013</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ejml</groupId>
+            <artifactId>ejml-simple</artifactId>
+            <version>0.41</version>
+        </dependency>
     </dependencies>
 
     <profiles>
