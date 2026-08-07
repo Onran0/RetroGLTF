@@ -38,9 +38,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.ejml</groupId>
-            <artifactId>ejml-simple</artifactId>
-            <version>0.41</version>
+            <groupId>org.joml</groupId>
+            <artifactId>joml</artifactId>
+            <version>1.10.8</version>
         </dependency>
     </dependencies>
 
