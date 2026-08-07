@@ -1,4 +1,4 @@
-package io.github.onran0.retrogltf.structure;
+package io.github.onran0.retrogltf.constants;
 
 public enum ComponentType {
     SIGNED_BYTE(5120, 1),
@@ -8,16 +8,22 @@ public enum ComponentType {
     UNSIGNED_INT(5125, 4),
     FLOAT(5126, 4);
 
-    private final int id;
+    private final int gltfId;
+    private final int glType;
     private final int length;
 
-    ComponentType(int id, int length) {
-        this.id = id;
+    ComponentType(int gltfId, int length) {
+        this.gltfId = gltfId;
+        this.glType = gltfId;
         this.length = length;
     }
 
-    public int getId() {
-        return id;
+    public int getGLTFId() {
+        return gltfId;
+    }
+
+    public int getGLType() {
+        return glType;
     }
 
     public int getLength() {
@@ -26,7 +32,7 @@ public enum ComponentType {
 
     public static ComponentType getById(int id) {
         for(ComponentType type : ComponentType.values()) {
-            if(type.getId() == id)
+            if(type.getGLTFId() == id)
                 return type;
         }
 

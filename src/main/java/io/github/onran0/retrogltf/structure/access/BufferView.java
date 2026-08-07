@@ -1,4 +1,4 @@
-package io.github.onran0.retrogltf.structure;
+package io.github.onran0.retrogltf.structure.access;
 
 import org.json.JSONObject;
 

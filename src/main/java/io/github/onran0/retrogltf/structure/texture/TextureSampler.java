@@ -1,0 +1,47 @@
+package io.github.onran0.retrogltf.structure.texture;
+
+import io.github.onran0.retrogltf.constants.TextureMagFilter;
+import io.github.onran0.retrogltf.constants.TextureMinFilter;
+import io.github.onran0.retrogltf.constants.TextureWrapMode;
+import org.json.JSONObject;
+
+public class TextureSampler {
+    private final TextureMagFilter magFilter;
+    private final TextureMinFilter minFilter;
+
+    private final TextureWrapMode wrapS;
+    private final TextureWrapMode wrapT;
+
+    public TextureSampler(JSONObject json) {
+        if(json.has("magFilter")) {
+            this.magFilter = TextureMagFilter.getById(json.getInt("magFilter"));
+        } else {
+            this.magFilter = null;
+        }
+
+        if(json.has("minFilter")) {
+            this.minFilter = TextureMinFilter.getById(json.getInt("minFilter"));
+        } else {
+            this.minFilter = null;
+        }
+
+        this.wrapS = TextureWrapMode.getById(json.optInt("wrapS", 10497));
+        this.wrapT = TextureWrapMode.getById(json.optInt("wrapT", 10497));
+    }
+
+    public TextureMagFilter getMagFilter() {
+        return magFilter;
+    }
+
+    public TextureMinFilter getMinFilter() {
+        return minFilter;
+    }
+
+    public TextureWrapMode getWrapS() {
+        return wrapS;
+    }
+
+    public TextureWrapMode getWrapT() {
+        return wrapT;
+    }
+}

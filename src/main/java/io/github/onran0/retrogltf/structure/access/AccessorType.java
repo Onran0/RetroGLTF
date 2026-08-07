@@ -1,4 +1,4 @@
-package io.github.onran0.retrogltf.structure;
+package io.github.onran0.retrogltf.structure.access;
 
 public enum AccessorType {
     SCALAR("SCALAR", 1),

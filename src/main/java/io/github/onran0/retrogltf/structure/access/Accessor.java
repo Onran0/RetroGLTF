@@ -1,5 +1,6 @@
-package io.github.onran0.retrogltf.structure;
+package io.github.onran0.retrogltf.structure.access;
 
+import io.github.onran0.retrogltf.constants.ComponentType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

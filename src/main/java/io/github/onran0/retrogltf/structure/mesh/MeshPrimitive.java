@@ -1,5 +1,6 @@
-package io.github.onran0.retrogltf.structure;
+package io.github.onran0.retrogltf.structure.mesh;
 
+import io.github.onran0.retrogltf.constants.PrimitiveAttributeTypes;
 import org.json.JSONObject;
 
 import java.util.Set;
@@ -35,53 +36,23 @@ public class MeshPrimitive {
     }
 
     public static class Attribute {
-        public enum RegularType {
-            POSITION("POSITION"),
-            NORMAL("NORMAL"),
-            TANGENT("TANGENT"),
-            COLOR_0("COLOR_0"),
-            TEXCOORD_0("TEXCOORD_0"),
-            TEXCOORD_1("TEXCOORD_1"),
-            JOINTS_0("JOINTS_0"),
-            WEIGHTS_0("WEIGHTS_0");
-
-            private final String literal;
-
-            RegularType(String literal) {
-                this.literal = literal;
-            }
-
-            public String getLiteral() {
-                return literal;
-            }
-
-            public static RegularType getByLiteral(String literal) {
-                for(RegularType type : RegularType.values()) {
-                    if(type.getLiteral().equals(literal))
-                        return type;
-                }
-
-                return null;
-            }
-        }
-
         private final String type;
         private final int accessor;
 
-        private final RegularType regularType;
+        private final PrimitiveAttributeTypes regularType;
 
         public Attribute(String type, int accessor) {
             this.type = type;
             this.accessor = accessor;
 
-            this.regularType = RegularType.getByLiteral(type);
+            this.regularType = PrimitiveAttributeTypes.getById(type);
         }
 
         public String getType() {
             return type;
         }
 
-        public RegularType getRegularType() {
+        public PrimitiveAttributeTypes getRegularType() {
             return regularType;
         }
 
