@@ -4,13 +4,13 @@ import io.github.onran0.retrogltf.constants.AnimationChannelPath;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
-public class AnimationChannel {
+public class GLTFAnimationChannel {
 
     private final int sampler;
     private final Integer targetNode;
     private final AnimationChannelPath targetPath;
 
-    public AnimationChannel(JSONObject json) {
+    public GLTFAnimationChannel(JSONObject json) {
         this.sampler = json.getInt("sampler");
 
         JSONObject target = json.getJSONObject("target");

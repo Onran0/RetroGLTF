@@ -5,14 +5,14 @@ import io.github.onran0.retrogltf.constants.TextureMinFilter;
 import io.github.onran0.retrogltf.constants.TextureWrapMode;
 import org.json.JSONObject;
 
-public class TextureSampler {
+public class GLTFTextureSampler {
     private final TextureMagFilter magFilter;
     private final TextureMinFilter minFilter;
 
     private final TextureWrapMode wrapS;
     private final TextureWrapMode wrapT;
 
-    public TextureSampler(JSONObject json) {
+    public GLTFTextureSampler(JSONObject json) {
         if(json.has("magFilter")) {
             this.magFilter = TextureMagFilter.getById(json.getInt("magFilter"));
         } else {

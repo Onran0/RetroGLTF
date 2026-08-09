@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 import java.util.Set;
 
-public class MeshPrimitive {
+public class GLTFMeshPrimitive {
     public enum Mode {
         POINTS(0),
         LINE_STRIPS(1),
@@ -66,7 +66,7 @@ public class MeshPrimitive {
     private final int material;
     private final Mode mode;
 
-    public MeshPrimitive(JSONObject json) {
+    public GLTFMeshPrimitive(JSONObject json) {
         JSONObject attributes = json.getJSONObject("attributes");
 
         Set<String> attrTypes = attributes.keySet();

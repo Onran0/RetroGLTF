@@ -1,13 +1,13 @@
 package io.github.onran0.retrogltf.structure.material;
 
-import io.github.onran0.retrogltf.structure.texture.TextureInfo;
+import io.github.onran0.retrogltf.structure.texture.GLTFTextureInfo;
 import org.json.JSONObject;
 
-public class NormalTextureInfo extends TextureInfo {
+public class GLTFNormalTextureInfo extends GLTFTextureInfo {
 
     private final float scale;
 
-    public NormalTextureInfo(JSONObject json) {
+    public GLTFNormalTextureInfo(JSONObject json) {
         super(json);
 
         this.scale = json.optFloat("scale", 1.0f);

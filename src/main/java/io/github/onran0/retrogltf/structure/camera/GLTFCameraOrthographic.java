@@ -2,14 +2,14 @@ package io.github.onran0.retrogltf.structure.camera;
 
 import org.json.JSONObject;
 
-public class CameraOrthographic {
+public class GLTFCameraOrthographic {
     private final float xmag;
     private final float ymag;
 
     private final float zfar;
     private final float znear;
 
-    public CameraOrthographic(JSONObject json) {
+    public GLTFCameraOrthographic(JSONObject json) {
         this.xmag = json.getFloat("xmag");
         this.ymag = json.getFloat("ymag");
 

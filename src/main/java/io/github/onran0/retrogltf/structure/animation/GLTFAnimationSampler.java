@@ -4,12 +4,12 @@ import io.github.onran0.retrogltf.constants.AnimationInterpolationType;
 
 import org.json.JSONObject;
 
-public class AnimationSampler {
+public class GLTFAnimationSampler {
     private final int input;
     private final AnimationInterpolationType interpolation;
     private final int output;
 
-    public AnimationSampler(JSONObject json) {
+    public GLTFAnimationSampler(JSONObject json) {
         this.input = json.getInt("input");
         this.interpolation = AnimationInterpolationType.getById(json.optString("interpolation", "LINEAR"));
         this.output = json.getInt("output");

@@ -3,21 +3,21 @@ package io.github.onran0.retrogltf.structure.camera;
 import io.github.onran0.retrogltf.constants.CameraType;
 import org.json.JSONObject;
 
-public class Camera {
+public class GLTFCamera {
     private final String name;
-    private final CameraOrthographic orthographic;
-    private final CameraPerspective perspective;
+    private final GLTFCameraOrthographic orthographic;
+    private final GLTFCameraPerspective perspective;
     private final CameraType type;
 
-    public Camera(JSONObject json) {
+    public GLTFCamera(JSONObject json) {
         this.name = json.optString("name");
         this.type = CameraType.getById(json.optString("type"));
 
         if(this.type == CameraType.ORTHOGRAPHIC) {
             this.perspective = null;
-            this.orthographic = new CameraOrthographic(json.getJSONObject("orthographic"));
+            this.orthographic = new GLTFCameraOrthographic(json.getJSONObject("orthographic"));
         } else {
-            this.perspective = new CameraPerspective(json.getJSONObject("perspective"));
+            this.perspective = new GLTFCameraPerspective(json.getJSONObject("perspective"));
             this.orthographic = null;
         }
     }
@@ -26,11 +26,11 @@ public class Camera {
         return name;
     }
 
-    public CameraOrthographic getOrthographic() {
+    public GLTFCameraOrthographic getOrthographic() {
         return orthographic;
     }
 
-    public CameraPerspective getPerspective() {
+    public GLTFCameraPerspective getPerspective() {
         return perspective;
     }
 

@@ -3,13 +3,13 @@ package io.github.onran0.retrogltf.structure.access;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
-public class BufferView {
+public class GLTFBufferView {
     private final int buffer;
     private final int byteLength;
     private final int byteOffset;
     private final Integer byteStride;
 
-    public BufferView(JSONObject json) {
+    public GLTFBufferView(JSONObject json) {
         this.buffer = json.getInt("buffer");
         this.byteLength = json.getInt("byteLength");
         this.byteOffset = json.optInt("byteOffset", 0);

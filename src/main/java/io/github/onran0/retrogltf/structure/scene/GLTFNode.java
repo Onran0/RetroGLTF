@@ -5,7 +5,7 @@ import io.github.onran0.retrogltf.util.JSONUtil;
 import org.joml.*;
 import org.json.*;
 
-public class Node {
+public class GLTFNode {
 
     private final String name;
     private final int[] children;
@@ -20,7 +20,7 @@ public class Node {
     private final Vector3f scale;
     private final Matrix4f matrix;
 
-    public Node(JSONObject json) {
+    public GLTFNode(JSONObject json) {
         this.name = json.optString("name");
 
         this.children = JSONUtil.toIntArray(json.optJSONArray("children"));

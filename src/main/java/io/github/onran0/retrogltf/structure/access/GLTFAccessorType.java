@@ -1,6 +1,6 @@
 package io.github.onran0.retrogltf.structure.access;
 
-public enum AccessorType {
+public enum GLTFAccessorType {
     SCALAR("SCALAR", 1),
     VEC2("VEC2", 2),
     VEC3("VEC3", 3),
@@ -13,7 +13,7 @@ public enum AccessorType {
     private final String id;
     private final int numberOfComps;
 
-    AccessorType(String id, int numberOfComps) {
+    GLTFAccessorType(String id, int numberOfComps) {
         this.id = id;
         this.numberOfComps = numberOfComps;
     }
@@ -26,8 +26,8 @@ public enum AccessorType {
         return numberOfComps;
     }
 
-    public static AccessorType getById(String id) {
-        for(AccessorType type : AccessorType.values()) {
+    public static GLTFAccessorType getById(String id) {
+        for(GLTFAccessorType type : GLTFAccessorType.values()) {
             if(type.getId().equals(id))
                 return type;
         }

@@ -3,24 +3,24 @@ package io.github.onran0.retrogltf.structure.animation;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
-public class Animation {
+public class GLTFAnimation {
     private final String name;
-    private final AnimationChannel[] channels;
-    private final AnimationSampler[] samplers;
+    private final GLTFAnimationChannel[] channels;
+    private final GLTFAnimationSampler[] samplers;
 
-    public Animation(JSONObject json) {
+    public GLTFAnimation(JSONObject json) {
         this.name = json.optString("name");
 
         this.channels = JSONUtil.toObjectArray(
                 json.getJSONArray("channels"),
-                AnimationChannel[]::new,
-                AnimationChannel::new
+                GLTFAnimationChannel[]::new,
+                GLTFAnimationChannel::new
         );
 
         this.samplers = JSONUtil.toObjectArray(
                 json.getJSONArray("samplers"),
-                AnimationSampler[]::new,
-                AnimationSampler::new
+                GLTFAnimationSampler[]::new,
+                GLTFAnimationSampler::new
         );
     }
 
@@ -28,11 +28,11 @@ public class Animation {
         return name;
     }
 
-    public AnimationChannel[] getChannels() {
+    public GLTFAnimationChannel[] getChannels() {
         return channels;
     }
 
-    public AnimationSampler[] getSamplers() {
+    public GLTFAnimationSampler[] getSamplers() {
         return samplers;
     }
 }

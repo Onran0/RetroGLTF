@@ -4,7 +4,7 @@ import io.github.onran0.retrogltf.constants.ComponentType;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
-public class Accessor {
+public class GLTFAccessor {
     private final Integer bufferView;
     private final int byteOffset;
 
@@ -14,14 +14,14 @@ public class Accessor {
     private final float[] min;
     private final float[] max;
 
-    private final AccessorType type;
+    private final GLTFAccessorType type;
     private final boolean normalized;
 
-    private final SparseAccessor sparse;
+    private final GLTFSparseAccessor sparse;
     
     private final int elementSize;
 
-    public Accessor(JSONObject json) {
+    public GLTFAccessor(JSONObject json) {
         this.bufferView = JSONUtil.getNullableInt(json, "bufferView");
         this.byteOffset = json.optInt("byteOffset", 0);
 
@@ -31,13 +31,13 @@ public class Accessor {
         this.min = JSONUtil.toFloatArray(json.optJSONArray("min"));
         this.max = JSONUtil.toFloatArray(json.optJSONArray("max"));
 
-        this.type = AccessorType.getById(json.getString("type"));
+        this.type = GLTFAccessorType.getById(json.getString("type"));
         this.normalized = json.optBoolean("normalized", false);
 
         JSONObject sparse = json.optJSONObject("sparse");
 
         if(sparse != null) {
-            this.sparse = new SparseAccessor(sparse);
+            this.sparse = new GLTFSparseAccessor(sparse);
         } else {
             this.sparse = null;
         }
@@ -75,7 +75,7 @@ public class Accessor {
         return max;
     }
 
-    public AccessorType getType() {
+    public GLTFAccessorType getType() {
         return type;
     }
 
@@ -83,7 +83,7 @@ public class Accessor {
         return normalized;
     }
 
-    public SparseAccessor getSparse() {
+    public GLTFSparseAccessor getSparse() {
         return sparse;
     }
 
@@ -93,11 +93,11 @@ public class Accessor {
         return this.elementSize;
     }
 
-    public int getEffectiveByteStride(BufferView view) {
+    public int getEffectiveByteStride(GLTFBufferView view) {
         return view.hasByteStride() ? view.getByteStride() : this.elementSize;
     }
 
-    public int getLength(BufferView view) {
+    public int getLength(GLTFBufferView view) {
         return getLength(getEffectiveByteStride(view));
     }
 
@@ -105,7 +105,7 @@ public class Accessor {
         return byteStride * (count - 1) + this.elementSize;
     }
 
-    public int getElementIndexInBuffer(BufferView view, int index) {
+    public int getElementIndexInBuffer(GLTFBufferView view, int index) {
         return getElementIndexInBuffer(index, getEffectiveByteStride(view), view.getByteOffset());
     }
 

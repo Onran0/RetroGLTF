@@ -2,11 +2,11 @@ package io.github.onran0.retrogltf.structure.texture;
 
 import org.json.JSONObject;
 
-public class TextureInfo {
+public class GLTFTextureInfo {
     private final int index;
     private final int texCoord;
 
-    public TextureInfo(JSONObject json) {
+    public GLTFTextureInfo(JSONObject json) {
         this.index = json.getInt("index");
         this.texCoord = json.optInt("texCoord", 0);
     }

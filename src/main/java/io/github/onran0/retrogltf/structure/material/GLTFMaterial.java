@@ -1,32 +1,32 @@
 package io.github.onran0.retrogltf.structure.material;
 
 import io.github.onran0.retrogltf.constants.TextureAlphaMode;
-import io.github.onran0.retrogltf.structure.texture.TextureInfo;
+import io.github.onran0.retrogltf.structure.texture.GLTFTextureInfo;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.joml.Vector3f;
 import org.json.JSONObject;
 
-public class Material {
+public class GLTFMaterial {
 
-    private final PBRMetallicRoughness pbrMetallicRoughness;
-    private final NormalTextureInfo normalTexture;
-    private final OcclusionTextureInfo occlusionTexture;
-    private final TextureInfo emissiveTexture;
+    private final GLTFPBRMetallicRoughness pbrMetallicRoughness;
+    private final GLTFNormalTextureInfo normalTexture;
+    private final GLTFOcclusionTextureInfo occlusionTexture;
+    private final GLTFTextureInfo emissiveTexture;
     private final Vector3f emissiveFactor;
     private final TextureAlphaMode alphaMode;
     private final float alphaCutoff;
     private final boolean doubleSided;
 
-    public Material(JSONObject json) {
+    public GLTFMaterial(JSONObject json) {
         if(json.has("pbrMetallicRoughness")) {
-            this.pbrMetallicRoughness = new PBRMetallicRoughness(json.getJSONObject("pbrMetallicRoughness"));
+            this.pbrMetallicRoughness = new GLTFPBRMetallicRoughness(json.getJSONObject("pbrMetallicRoughness"));
         } else {
-            this.pbrMetallicRoughness = new PBRMetallicRoughness(new JSONObject());
+            this.pbrMetallicRoughness = new GLTFPBRMetallicRoughness(new JSONObject());
         }
 
-        this.normalTexture = JSONUtil.parseNullableObject(json, "normalTexture", NormalTextureInfo::new);
-        this.occlusionTexture = JSONUtil.parseNullableObject(json, "occlusionTexture", OcclusionTextureInfo::new);
-        this.emissiveTexture = JSONUtil.parseNullableObject(json, "emissiveTexture", TextureInfo::new);
+        this.normalTexture = JSONUtil.parseNullableObject(json, "normalTexture", GLTFNormalTextureInfo::new);
+        this.occlusionTexture = JSONUtil.parseNullableObject(json, "occlusionTexture", GLTFOcclusionTextureInfo::new);
+        this.emissiveTexture = JSONUtil.parseNullableObject(json, "emissiveTexture", GLTFTextureInfo::new);
 
         this.emissiveFactor = JSONUtil.toVector3(
                 json.getJSONArray("emissiveFactor"),
@@ -38,19 +38,19 @@ public class Material {
         this.doubleSided = json.optBoolean("doubleSided", false);
     }
 
-    public PBRMetallicRoughness getPBRMetallicRoughness() {
+    public GLTFPBRMetallicRoughness getPBRMetallicRoughness() {
         return pbrMetallicRoughness;
     }
 
-    public NormalTextureInfo getNormalTexture() {
+    public GLTFNormalTextureInfo getNormalTexture() {
         return normalTexture;
     }
 
-    public OcclusionTextureInfo getOcclusionTexture() {
+    public GLTFOcclusionTextureInfo getOcclusionTexture() {
         return occlusionTexture;
     }
 
-    public TextureInfo getEmissiveTexture() {
+    public GLTFTextureInfo getEmissiveTexture() {
         return emissiveTexture;
     }
 

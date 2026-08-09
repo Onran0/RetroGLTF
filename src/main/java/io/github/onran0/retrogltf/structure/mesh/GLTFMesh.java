@@ -4,25 +4,25 @@ import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class Mesh {
-    private final MeshPrimitive[] primitives;
+public class GLTFMesh {
+    private final GLTFMeshPrimitive[] primitives;
     private final float[] weights;
 
-    public Mesh(JSONObject json) {
+    public GLTFMesh(JSONObject json) {
         JSONArray primitivesArray = json.getJSONArray("primitives");
 
         int primitiveCount = primitivesArray.length();
 
-        this.primitives = new MeshPrimitive[primitiveCount];
+        this.primitives = new GLTFMeshPrimitive[primitiveCount];
 
         for (int i = 0; i < primitiveCount; i++) {
-            this.primitives[i] = new MeshPrimitive(primitivesArray.getJSONObject(i));
+            this.primitives[i] = new GLTFMeshPrimitive(primitivesArray.getJSONObject(i));
         }
 
         this.weights = JSONUtil.toFloatArray(json.optJSONArray("weights"));
     }
 
-    public MeshPrimitive[] getPrimitives() {
+    public GLTFMeshPrimitive[] getPrimitives() {
         return primitives;
     }
 

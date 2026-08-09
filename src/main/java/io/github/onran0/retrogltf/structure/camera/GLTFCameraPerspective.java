@@ -3,13 +3,13 @@ package io.github.onran0.retrogltf.structure.camera;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
-public class CameraPerspective {
+public class GLTFCameraPerspective {
     private final Float aspectRatio;
     private final float yfov;
     private final Float zfar;
     private final float znear;
 
-    public CameraPerspective(JSONObject json) {
+    public GLTFCameraPerspective(JSONObject json) {
         this.aspectRatio = JSONUtil.getNullableFloat(json, "aspectRatio");
         this.yfov = json.getFloat("yfov");
         this.zfar = JSONUtil.getNullableFloat(json, "zfar");

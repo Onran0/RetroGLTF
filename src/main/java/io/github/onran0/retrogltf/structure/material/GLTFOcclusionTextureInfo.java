@@ -1,13 +1,13 @@
 package io.github.onran0.retrogltf.structure.material;
 
-import io.github.onran0.retrogltf.structure.texture.TextureInfo;
+import io.github.onran0.retrogltf.structure.texture.GLTFTextureInfo;
 import org.json.JSONObject;
 
-public class OcclusionTextureInfo extends TextureInfo {
+public class GLTFOcclusionTextureInfo extends GLTFTextureInfo {
 
     private final float strength;
 
-    public OcclusionTextureInfo(JSONObject json) {
+    public GLTFOcclusionTextureInfo(JSONObject json) {
         super(json);
 
         this.strength = json.optFloat("strength", 1.0f);

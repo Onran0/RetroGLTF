@@ -3,15 +3,15 @@ package io.github.onran0.retrogltf;
 import io.github.onran0.retrogltf.io.IFileProvider;
 import io.github.onran0.retrogltf.io.LegacyFileProvider;
 import io.github.onran0.retrogltf.io.NIOFileProvider;
-import io.github.onran0.retrogltf.structure.access.Buffer;
-import io.github.onran0.retrogltf.structure.access.BufferView;
+import io.github.onran0.retrogltf.structure.access.GLTFAccessor;
+import io.github.onran0.retrogltf.structure.access.GLTFBuffer;
+import io.github.onran0.retrogltf.structure.access.GLTFBufferView;
+import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
@@ -80,7 +80,7 @@ public class GLTFLoader {
         ByteBuffer[] buffers = new ByteBuffer[buffersCount];
 
         for(int i = 0;i < buffersCount;i++) {
-            Buffer bufferObj = new Buffer(buffersJson.getJSONObject(i));
+            GLTFBuffer bufferObj = new GLTFBuffer(buffersJson.getJSONObject(i));
 
             String uri = bufferObj.getURI();
             int byteLength = bufferObj.getByteLength();
@@ -96,16 +96,16 @@ public class GLTFLoader {
             }
         }
 
-        JSONArray bufferViewsJson = root.getJSONArray("bufferViews");
+        GLTFBufferView[] views = JSONUtil.toObjectArray(
+                root.getJSONArray("bufferViews"),
+                GLTFBufferView[]::new,
+                GLTFBufferView::new
+        );
 
-        int viewsCount = bufferViewsJson.length();
-
-        BufferView[] views = new BufferView[viewsCount];
-
-        for(int i = 0;i < viewsCount;i++) {
-            views[i] = new BufferView(bufferViewsJson.getJSONObject(i));
-        }
-
-
+        GLTFAccessor[] accessors = JSONUtil.toObjectArray(
+                root.getJSONArray("accessors"),
+                GLTFAccessor[]::new,
+                GLTFAccessor::new
+        );
     }
 }

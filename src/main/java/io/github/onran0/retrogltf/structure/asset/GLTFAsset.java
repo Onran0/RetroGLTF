@@ -2,13 +2,13 @@ package io.github.onran0.retrogltf.structure.asset;
 
 import org.json.JSONObject;
 
-public class Asset {
+public class GLTFAsset {
     private final String copyright;
     private final String generator;
     private final String version;
     private final String minVersion;
 
-    public Asset(JSONObject json) {
+    public GLTFAsset(JSONObject json) {
         this.copyright = json.optString("copyright");
         this.generator = json.optString("generator");
         this.version = json.getString("version");

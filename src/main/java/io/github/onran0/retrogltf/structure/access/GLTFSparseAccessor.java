@@ -3,7 +3,7 @@ package io.github.onran0.retrogltf.structure.access;
 import io.github.onran0.retrogltf.constants.ComponentType;
 import org.json.JSONObject;
 
-public class SparseAccessor {
+public class GLTFSparseAccessor {
     private final int count;
 
     private final int indicesBufferView;
@@ -13,7 +13,7 @@ public class SparseAccessor {
     private final int valuesBufferView;
     private final int valuesByteOffset;
 
-    public SparseAccessor(JSONObject json) {
+    public GLTFSparseAccessor(JSONObject json) {
         this.count = json.getInt("count");
 
         JSONObject indices = json.getJSONObject("indices");
