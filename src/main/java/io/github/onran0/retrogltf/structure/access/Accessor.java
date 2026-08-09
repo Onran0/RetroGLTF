@@ -1,11 +1,11 @@
 package io.github.onran0.retrogltf.structure.access;
 
 import io.github.onran0.retrogltf.constants.ComponentType;
-import org.json.JSONArray;
+import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
 public class Accessor {
-    private final int bufferView;
+    private final Integer bufferView;
     private final int byteOffset;
 
     private final ComponentType componentType;
@@ -18,30 +18,18 @@ public class Accessor {
     private final boolean normalized;
 
     private final SparseAccessor sparse;
+    
+    private final int elementSize;
 
     public Accessor(JSONObject json) {
-        this.bufferView = json.getInt("bufferView");
+        this.bufferView = JSONUtil.getNullableInt(json, "bufferView");
         this.byteOffset = json.optInt("byteOffset", 0);
 
         this.componentType = ComponentType.getById(json.getInt("componentType"));
         this.count = json.getInt("count");
 
-        JSONArray minJson = json.optJSONArray("min");
-
-        if(minJson != null) {
-            JSONArray maxJson = json.getJSONArray("max");
-
-            this.min = new float[minJson.length()];
-            this.max = new float[maxJson.length()];
-
-            for(int i = 0;i < this.min.length;i++) {
-                this.min[i] = minJson.getFloat(i);
-                this.max[i] = maxJson.getFloat(i);
-            }
-        } else {
-            this.min = null;
-            this.max = null;
-        }
+        this.min = JSONUtil.toFloatArray(json.optJSONArray("min"));
+        this.max = JSONUtil.toFloatArray(json.optJSONArray("max"));
 
         this.type = AccessorType.getById(json.getString("type"));
         this.normalized = json.optBoolean("normalized", false);
@@ -53,9 +41,15 @@ public class Accessor {
         } else {
             this.sparse = null;
         }
+
+        this.elementSize = componentType.getLength() * type.getNumberOfComponents();
     }
 
     // getters
+
+    public boolean hasBufferView() {
+        return bufferView != null;
+    }
 
     public int getBufferView() {
         return bufferView;
@@ -95,7 +89,27 @@ public class Accessor {
 
     // other
 
+    public int getElementSize() {
+        return this.elementSize;
+    }
+
+    public int getEffectiveByteStride(BufferView view) {
+        return view.hasByteStride() ? view.getByteStride() : this.elementSize;
+    }
+
+    public int getLength(BufferView view) {
+        return getLength(getEffectiveByteStride(view));
+    }
+
     public int getLength(int byteStride) {
-        return byteStride * (count - 1) + componentType.getLength() * type.getNumberOfComponents();
+        return byteStride * (count - 1) + this.elementSize;
+    }
+
+    public int getElementIndexInBuffer(BufferView view, int index) {
+        return getElementIndexInBuffer(index, getEffectiveByteStride(view), view.getByteOffset());
+    }
+
+    public int getElementIndexInBuffer(int index, int byteStride, int offset) {
+        return index * byteStride + byteOffset + offset;
     }
 }
