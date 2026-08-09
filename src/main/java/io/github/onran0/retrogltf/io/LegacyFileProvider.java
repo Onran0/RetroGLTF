@@ -17,13 +17,22 @@ public class LegacyFileProvider implements IFileProvider {
         this.root = root;
     }
 
-    @Override
-    public ByteBuffer getFileData(String path, int length) throws IOException {
+    private ByteBuffer rawGetFileData(String path, Integer length) throws IOException {
         File file = new File(root, path);
 
         FileInputStream fis = new FileInputStream(file);
         FileChannel fileChannel = fis.getChannel();
 
         return IOUtil.channelToBuffer(fileChannel, length);
+    }
+
+    @Override
+    public ByteBuffer getFileData(String path) throws IOException {
+        return rawGetFileData(path, null);
+    }
+
+    @Override
+    public ByteBuffer getFileData(String path, int length) throws IOException {
+        return rawGetFileData(path, length);
     }
 }

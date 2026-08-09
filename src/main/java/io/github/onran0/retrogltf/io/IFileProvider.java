@@ -5,5 +5,7 @@ import java.nio.ByteBuffer;
 
 public interface IFileProvider {
 
+    ByteBuffer getFileData(String path) throws IOException;
+
     ByteBuffer getFileData(String path, int length) throws IOException;
 }
