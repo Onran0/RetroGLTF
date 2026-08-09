@@ -18,12 +18,12 @@ public class LegacyFileProvider implements IFileProvider {
     }
 
     @Override
-    public ByteBuffer getFileData(String path) throws IOException {
+    public ByteBuffer getFileData(String path, int length) throws IOException {
         File file = new File(root, path);
 
         FileInputStream fis = new FileInputStream(file);
         FileChannel fileChannel = fis.getChannel();
 
-        return IOUtil.channelToBuffer(fileChannel, file.getPath());
+        return IOUtil.channelToBuffer(fileChannel, length);
     }
 }

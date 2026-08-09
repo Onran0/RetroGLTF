@@ -6,13 +6,22 @@ import java.nio.channels.FileChannel;
 
 public class IOUtil {
 
-    public static ByteBuffer channelToBuffer(FileChannel channel, String fileName) throws IOException {
-        long fileSize = channel.size();
+    public static ByteBuffer channelToBuffer(FileChannel channel) throws IOException {
+        return channelToBuffer(channel, null);
+    }
 
-        if(fileSize > Integer.MAX_VALUE)
-            throw new IOException(String.format("Size of file \"%s\" is bigger than Integer.MAX_VALUE", fileName));
+    public static ByteBuffer channelToBuffer(FileChannel channel, Integer length) throws IOException {
+        long toRead;
 
-        ByteBuffer buffer = ByteBuffer.allocate((int) fileSize);
+        if(length != null)
+            toRead = length;
+        else
+            toRead = channel.size();
+
+        if(toRead > Integer.MAX_VALUE)
+            throw new IOException("Required buffer length is bigger than Integer.MAX_VALUE");
+
+        ByteBuffer buffer = ByteBuffer.allocate((int) toRead);
 
         channel.read(buffer);
 

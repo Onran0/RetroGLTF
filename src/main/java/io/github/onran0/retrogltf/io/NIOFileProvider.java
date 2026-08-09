@@ -18,9 +18,9 @@ public class NIOFileProvider implements IFileProvider {
     }
 
     @Override
-    public ByteBuffer getFileData(String path) throws IOException {
+    public ByteBuffer getFileData(String path, int length) throws IOException {
         Path file = root.resolve(path);
 
-        return IOUtil.channelToBuffer(FileChannel.open(file, StandardOpenOption.READ), file.toString());
+        return IOUtil.channelToBuffer(FileChannel.open(file, StandardOpenOption.READ), length);
     }
 }
