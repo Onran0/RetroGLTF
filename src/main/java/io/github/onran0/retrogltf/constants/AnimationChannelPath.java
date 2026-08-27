@@ -22,6 +22,6 @@ public enum AnimationChannelPath {
                 return type;
         }
 
-        return null;
+        throw new IllegalArgumentException(id);
     }
 }

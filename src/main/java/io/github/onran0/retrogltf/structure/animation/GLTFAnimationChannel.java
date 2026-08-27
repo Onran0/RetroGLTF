@@ -4,6 +4,8 @@ import io.github.onran0.retrogltf.constants.AnimationChannelPath;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class GLTFAnimationChannel {
 
     private final int sampler;
@@ -23,12 +25,8 @@ public class GLTFAnimationChannel {
         return sampler;
     }
 
-    public boolean hasTargetNode() {
-        return targetNode != null;
-    }
-
-    public int getTargetNode() {
-        return targetNode;
+    public Optional<Integer> getTargetNode() {
+        return Optional.ofNullable(targetNode);
     }
 
     public AnimationChannelPath getTargetPath() {

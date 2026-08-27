@@ -2,6 +2,8 @@ package io.github.onran0.retrogltf.structure.access;
 
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class GLTFBuffer {
     private final int byteLength;
     private final String uri;
@@ -15,7 +17,7 @@ public class GLTFBuffer {
         return byteLength;
     }
 
-    public String getURI() {
-        return uri;
+    public Optional<String> getURI() {
+        return Optional.ofNullable(uri);
     }
 }

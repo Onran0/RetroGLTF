@@ -4,6 +4,8 @@ import io.github.onran0.retrogltf.constants.ComponentType;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class GLTFAccessor {
     private final Integer bufferView;
     private final int byteOffset;
@@ -34,10 +36,8 @@ public class GLTFAccessor {
         this.type = GLTFAccessorType.getById(json.getString("type"));
         this.normalized = json.optBoolean("normalized", false);
 
-        JSONObject sparse = json.optJSONObject("sparse");
-
-        if(sparse != null) {
-            this.sparse = new GLTFSparseAccessor(sparse);
+        if(json.has("sparse")) {
+            this.sparse = new GLTFSparseAccessor(json.getJSONObject("sparse"));
         } else {
             this.sparse = null;
         }
@@ -47,12 +47,8 @@ public class GLTFAccessor {
 
     // getters
 
-    public boolean hasBufferView() {
-        return bufferView != null;
-    }
-
-    public int getBufferView() {
-        return bufferView;
+    public Optional<Integer> getBufferView() {
+        return Optional.ofNullable(bufferView);
     }
 
     public int getByteOffset() {
@@ -67,12 +63,12 @@ public class GLTFAccessor {
         return count;
     }
 
-    public float[] getMin() {
-        return min;
+    public Optional<float[]> getMin() {
+        return Optional.ofNullable(min);
     }
 
-    public float[] getMax() {
-        return max;
+    public Optional<float[]> getMax() {
+        return Optional.ofNullable(max);
     }
 
     public GLTFAccessorType getType() {
@@ -83,8 +79,8 @@ public class GLTFAccessor {
         return normalized;
     }
 
-    public GLTFSparseAccessor getSparse() {
-        return sparse;
+    public Optional<GLTFSparseAccessor> getSparse() {
+        return Optional.ofNullable(sparse);
     }
 
     // other
@@ -94,7 +90,7 @@ public class GLTFAccessor {
     }
 
     public int getEffectiveByteStride(GLTFBufferView view) {
-        return view.hasByteStride() ? view.getByteStride() : this.elementSize;
+        return view.getByteStride().orElse(this.elementSize);
     }
 
     public int getLength(GLTFBufferView view) {

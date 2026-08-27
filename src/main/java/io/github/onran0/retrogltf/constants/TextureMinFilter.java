@@ -30,6 +30,6 @@ public enum TextureMinFilter {
                 return type;
         }
 
-        return null;
+        throw new IllegalArgumentException(String.valueOf(id));
     }
 }

@@ -3,6 +3,8 @@ package io.github.onran0.retrogltf.structure.texture;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class GLTFImage {
     private final String uri;
     private final String mimeType;
@@ -22,11 +24,7 @@ public class GLTFImage {
         return mimeType;
     }
 
-    public boolean hasBufferView() {
-        return bufferView != null;
-    }
-
-    public int getBufferView() {
-        return bufferView;
+    public Optional<Integer> getBufferView() {
+        return Optional.ofNullable(bufferView);
     }
 }

@@ -27,6 +27,6 @@ public enum TextureWrapMode {
                 return type;
         }
 
-        return null;
+        throw new IllegalArgumentException(String.valueOf(id));
     }
 }

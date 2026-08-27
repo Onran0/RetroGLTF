@@ -32,6 +32,6 @@ public enum GLTFAccessorType {
                 return type;
         }
 
-        return null;
+        throw new IllegalArgumentException(id);
     }
 }

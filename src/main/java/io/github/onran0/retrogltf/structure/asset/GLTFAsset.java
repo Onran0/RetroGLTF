@@ -37,12 +37,12 @@ public class GLTFAsset {
         }
     }
 
-    public String getCopyright() {
-        return copyright;
+    public Optional<String> getCopyright() {
+        return Optional.ofNullable(copyright);
     }
 
-    public String getGenerator() {
-        return generator;
+    public Optional<String> getGenerator() {
+        return Optional.ofNullable(generator);
     }
 
     public String getVersion() {

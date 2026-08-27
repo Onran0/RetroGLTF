@@ -4,6 +4,8 @@ import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class GLTFMesh {
     private final GLTFMeshPrimitive[] primitives;
     private final float[] weights;
@@ -26,5 +28,5 @@ public class GLTFMesh {
         return primitives;
     }
 
-    public float[] getWeights() { return weights; }
+    public Optional<float[]> getWeights() { return Optional.ofNullable(weights); }
 }

@@ -3,6 +3,8 @@ package io.github.onran0.retrogltf.structure.scene;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class GLTFScene {
     private final String name;
     private final int[] nodes;
@@ -12,11 +14,11 @@ public class GLTFScene {
         this.nodes = JSONUtil.toIntArray(json.optJSONArray("nodes"));
     }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
-    public int[] getNodes() {
-        return nodes;
+    public Optional<int[]> getNodes() {
+        return Optional.ofNullable(nodes);
     }
 }

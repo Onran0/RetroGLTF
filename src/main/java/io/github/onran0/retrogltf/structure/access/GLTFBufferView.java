@@ -3,6 +3,8 @@ package io.github.onran0.retrogltf.structure.access;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class GLTFBufferView {
     private final int buffer;
     private final int byteLength;
@@ -30,11 +32,7 @@ public class GLTFBufferView {
         return byteOffset;
     }
 
-    public boolean hasByteStride() {
-        return byteStride != null;
-    }
-
-    public int getByteStride() {
-        return byteStride;
+    public Optional<Integer> getByteStride() {
+        return Optional.ofNullable(byteStride);
     }
 }

@@ -4,6 +4,7 @@ import io.github.onran0.retrogltf.constants.PrimitiveAttributeTypes;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
+import java.util.Optional;
 import java.util.Set;
 
 public class GLTFMeshPrimitive {
@@ -91,20 +92,12 @@ public class GLTFMeshPrimitive {
         return attributes;
     }
 
-    public boolean hasIndices() {
-        return indices != null;
+    public Optional<Integer> getIndices() {
+        return Optional.ofNullable(indices);
     }
 
-    public int getIndices() {
-        return indices;
-    }
-
-    public boolean hasMaterial() {
-        return material != null;
-    }
-
-    public int getMaterial() {
-        return material;
+    public Optional<Integer> getMaterial() {
+        return Optional.ofNullable(material);
     }
 
     public Mode getMode() {

@@ -26,6 +26,6 @@ public enum TextureMagFilter {
                 return type;
         }
 
-        return null;
+        throw new IllegalArgumentException(String.valueOf(id));
     }
 }

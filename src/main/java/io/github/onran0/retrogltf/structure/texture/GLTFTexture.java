@@ -3,6 +3,8 @@ package io.github.onran0.retrogltf.structure.texture;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class GLTFTexture {
     private final int sampler;
     private final Integer source;
@@ -16,11 +18,7 @@ public class GLTFTexture {
         return sampler;
     }
 
-    public boolean hasSource() {
-        return source != null;
-    }
-
-    public int getSource() {
-        return source;
+    public Optional<Integer> getSource() {
+        return Optional.ofNullable(source);
     }
 }

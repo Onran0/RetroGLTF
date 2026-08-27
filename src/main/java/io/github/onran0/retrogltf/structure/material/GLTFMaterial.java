@@ -6,6 +6,8 @@ import io.github.onran0.retrogltf.util.JSONUtil;
 import org.joml.Vector3f;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class GLTFMaterial {
 
     private final GLTFPBRMetallicRoughness pbrMetallicRoughness;
@@ -42,16 +44,16 @@ public class GLTFMaterial {
         return pbrMetallicRoughness;
     }
 
-    public GLTFNormalTextureInfo getNormalTexture() {
-        return normalTexture;
+    public Optional<GLTFNormalTextureInfo> getNormalTexture() {
+        return Optional.ofNullable(normalTexture);
     }
 
-    public GLTFOcclusionTextureInfo getOcclusionTexture() {
-        return occlusionTexture;
+    public Optional<GLTFOcclusionTextureInfo> getOcclusionTexture() {
+        return Optional.ofNullable(occlusionTexture);
     }
 
-    public GLTFTextureInfo getEmissiveTexture() {
-        return emissiveTexture;
+    public Optional<GLTFTextureInfo> getEmissiveTexture() {
+        return Optional.ofNullable(emissiveTexture);
     }
 
     public Vector3f getEmissiveFactor() {

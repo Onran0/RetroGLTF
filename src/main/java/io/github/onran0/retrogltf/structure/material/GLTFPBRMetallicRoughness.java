@@ -5,6 +5,8 @@ import io.github.onran0.retrogltf.util.JSONUtil;
 import org.joml.Vector4f;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class GLTFPBRMetallicRoughness {
     private final Vector4f baseColorFactor;
     private final GLTFTextureInfo baseColorTexture;
@@ -22,12 +24,12 @@ public class GLTFPBRMetallicRoughness {
         this.roughnessFactor = json.optFloat("roughnessFactor", 1.0f);
     }
 
-    public Vector4f getBaseColorFactor() {
-        return baseColorFactor;
+    public Optional<Vector4f> getBaseColorFactor() {
+        return Optional.ofNullable(baseColorFactor);
     }
 
-    public GLTFTextureInfo getBaseColorTexture() {
-        return baseColorTexture;
+    public Optional<GLTFTextureInfo> getBaseColorTexture() {
+        return Optional.ofNullable(baseColorTexture);
     }
 
     public float getMetallicFactor() {
@@ -38,7 +40,7 @@ public class GLTFPBRMetallicRoughness {
         return roughnessFactor;
     }
 
-    public GLTFTextureInfo getMetallicRoughnessTexture() {
-        return metallicRoughnessTexture;
+    public Optional<GLTFTextureInfo> getMetallicRoughnessTexture() {
+        return Optional.ofNullable(metallicRoughnessTexture);
     }
 }

@@ -26,6 +26,6 @@ public enum PrimitiveAttributeTypes {
                 return type;
         }
 
-        return null;
+        throw new IllegalArgumentException(id);
     }
 }

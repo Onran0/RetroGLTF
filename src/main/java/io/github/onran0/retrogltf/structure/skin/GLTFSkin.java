@@ -3,6 +3,8 @@ package io.github.onran0.retrogltf.structure.skin;
 import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class GLTFSkin {
     private final int[] joints;
     private final int[] inverseBindMatrices;
@@ -18,15 +20,11 @@ public class GLTFSkin {
         return joints;
     }
 
-    public int[] getInverseBindMatrices() {
-        return inverseBindMatrices;
+    public Optional<int[]> getInverseBindMatrices() {
+        return Optional.ofNullable(inverseBindMatrices);
     }
 
-    public boolean hasSkeleton() {
-        return skeleton != null;
-    }
-
-    public int getSkeleton() {
-        return skeleton;
+    public Optional<Integer> getSkeleton() {
+        return Optional.ofNullable(skeleton);
     }
 }

@@ -20,6 +20,6 @@ public enum CameraType {
                 return type;
         }
 
-        return null;
+        throw new IllegalArgumentException(id);
     }
 }

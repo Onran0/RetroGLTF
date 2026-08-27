@@ -5,6 +5,8 @@ import io.github.onran0.retrogltf.constants.TextureMinFilter;
 import io.github.onran0.retrogltf.constants.TextureWrapMode;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class GLTFTextureSampler {
     private final TextureMagFilter magFilter;
     private final TextureMinFilter minFilter;
@@ -29,12 +31,12 @@ public class GLTFTextureSampler {
         this.wrapT = TextureWrapMode.getById(json.optInt("wrapT", 10497));
     }
 
-    public TextureMagFilter getMagFilter() {
-        return magFilter;
+    public Optional<TextureMagFilter> getMagFilter() {
+        return Optional.ofNullable(magFilter);
     }
 
-    public TextureMinFilter getMinFilter() {
-        return minFilter;
+    public Optional<TextureMinFilter> getMinFilter() {
+        return Optional.ofNullable(minFilter);
     }
 
     public TextureWrapMode getWrapS() {

@@ -21,6 +21,6 @@ public enum AnimationInterpolationType {
                 return type;
         }
 
-        return null;
+        throw new IllegalArgumentException(id);
     }
 }

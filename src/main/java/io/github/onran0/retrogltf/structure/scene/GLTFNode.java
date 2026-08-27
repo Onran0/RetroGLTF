@@ -5,6 +5,8 @@ import io.github.onran0.retrogltf.util.JSONUtil;
 import org.joml.*;
 import org.json.*;
 
+import java.util.Optional;
+
 public class GLTFNode {
 
     private final String name;
@@ -32,9 +34,9 @@ public class GLTFNode {
         this.skin = JSONUtil.getNullableInt(json, "skin");
         this.weights = JSONUtil.toFloatArray(json.optJSONArray("weights"));
 
-        this.translation = JSONUtil.toVector3(json.getJSONArray("translation"));
-        this.rotation = JSONUtil.toQuaternion(json.getJSONArray("rotation"));
-        this.scale = JSONUtil.toVector3(json.getJSONArray("translation"));
+        this.translation = JSONUtil.toVector3(json.getJSONArray("translation"), new Vector3f());
+        this.rotation = JSONUtil.toQuaternion(json.getJSONArray("rotation"), new Quaternionf());
+        this.scale = JSONUtil.toVector3(json.getJSONArray("translation"), new Vector3f());
 
         this.matrix = JSONUtil.toMatrix4(json.getJSONArray("matrix"));
 
@@ -51,56 +53,44 @@ public class GLTFNode {
 
     // default properties getters
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
-    public int[] getChildren() {
-        return children;
+    public Optional<int[]> getChildren() {
+        return Optional.ofNullable(children);
     }
 
-    public boolean hasCamera() {
-        return camera != null;
+    public Optional<Integer> getCamera() {
+        return Optional.ofNullable(camera);
     }
 
-    public int getCamera() {
-        return camera;
+    public Optional<Integer> getMesh() {
+        return Optional.ofNullable(mesh);
     }
 
-    public boolean hasMesh() {
-        return mesh != null;
+    public Optional<Integer> getSkin() {
+        return Optional.ofNullable(skin);
     }
 
-    public int getMesh() {
-        return mesh;
+    public Optional<float[]> getWeights() {
+        return Optional.ofNullable(weights);
     }
 
-    public boolean hasSkin() {
-        return skin != null;
+    public Optional<Vector3f> getTranslation() {
+        return Optional.ofNullable(translation);
     }
 
-    public int getSkin() {
-        return skin;
+    public Optional<Quaternionf> getRotation() {
+        return Optional.ofNullable(rotation);
     }
 
-    public float[] getWeights() {
-        return weights;
+    public Optional<Vector3f> getScale() {
+        return Optional.ofNullable(scale);
     }
 
-    public Vector3f getTranslation() {
-        return translation;
-    }
-
-    public Quaternionf getRotation() {
-        return rotation;
-    }
-
-    public Vector3f getScale() {
-        return scale;
-    }
-
-    public Matrix4f getDefinedMatrix() {
-        return matrix;
+    public Optional<Matrix4f> getDefinedMatrix() {
+        return Optional.ofNullable(matrix);
     }
 
     // other

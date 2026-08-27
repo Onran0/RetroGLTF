@@ -30,7 +30,8 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.util.Base64;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class GLTFLoader {
 
@@ -137,9 +138,11 @@ public class GLTFLoader {
                 root.getJSONArray("scenes").getJSONObject(sceneIndex)
         );
 
-        for(int usedNodeIndex : scene.getNodes()) {
-            parseNode(usedNodeIndex);
-        }
+        scene.getNodes().ifPresent(nodes -> {
+            for(int usedNodeIndex : nodes) {
+                parseNode(usedNodeIndex);
+            }
+        });
 
         if(animationsJson != null) {
             for(int i = 0;i < animationsJson.length();i++) {
@@ -155,31 +158,25 @@ public class GLTFLoader {
     private void parseNode(int nodeIndex) {
         GLTFNode node = nodes[nodeIndex] = new GLTFNode(nodesJson.getJSONObject(nodeIndex));
 
-        if(node.getChildren() != null) {
-            for(int child : node.getChildren()) {
+        node.getChildren().ifPresent(children -> {
+            for(int child : children) {
                 nodeParents[child] = nodeIndex;
                 isNodeChildren[child] = true;
             }
-        }
+        });
 
-        if(node.hasMesh())
-            parseMesh(node.getMesh());
+        node.getMesh().ifPresent(this::parseMesh);
 
-        if(node.hasSkin()) {
-            parseSkin(node.getSkin());
-        }
+        node.getSkin().ifPresent(this::parseSkin);
 
-        if(node.hasCamera()) {
-            parseCamera(node.getCamera());
-        }
+        node.getCamera().ifPresent(this::parseCamera);
     }
 
     private void parseMesh(int meshIndex) {
         GLTFMesh mesh = meshes[meshIndex] = new GLTFMesh(meshesJson.getJSONObject(meshIndex));
 
         for(GLTFMeshPrimitive primitive : mesh.getPrimitives()) {
-            if(primitive.hasMaterial())
-                parseMaterial(primitive.getMaterial());
+            primitive.getMaterial().ifPresent(this::parseMaterial);
         }
     }
 
@@ -196,30 +193,27 @@ public class GLTFLoader {
                 materialsJson.getJSONObject(matIndex)
         );
 
-        parseTextureByInfo(material.getEmissiveTexture());
-        parseTextureByInfo(material.getNormalTexture());
-        parseTextureByInfo(material.getOcclusionTexture());
-
         GLTFPBRMetallicRoughness pbr = material.getPBRMetallicRoughness();
 
-        parseTextureByInfo(pbr.getBaseColorTexture());
-        parseTextureByInfo(pbr.getMetallicRoughnessTexture());
+        Stream.of(
+            material.getEmissiveTexture(),
+            material.getNormalTexture(),
+            material.getOcclusionTexture(),
+            pbr.getBaseColorTexture(),
+            pbr.getMetallicRoughnessTexture()
+        ).forEach(tex -> tex.ifPresent(this::parseTextureByInfo));
     }
 
     private void parseTextureByInfo(GLTFTextureInfo texInfo) {
-        if(texInfo != null) {
-            int texIndex = texInfo.getIndex();
+        int texIndex = texInfo.getIndex();
 
-            GLTFTexture texture = textures[texIndex] = new GLTFTexture(
-                    texturesJson.getJSONObject(texIndex)
-            );
+        GLTFTexture texture = textures[texIndex] = new GLTFTexture(
+                texturesJson.getJSONObject(texIndex)
+        );
 
-            parseSampler(texture.getSampler());
+        parseSampler(texture.getSampler());
 
-            if(texture.hasSource()) {
-                parseImage(texture.getSource());
-            }
-        }
+        texture.getSource().ifPresent(this::parseImage);
     }
 
     private void parseSampler(int sampIndex) {
@@ -275,10 +269,10 @@ public class GLTFLoader {
         for(int i = 0;i < buffersCount;i++) {
             GLTFBuffer bufferObj = new GLTFBuffer(buffersJson.getJSONObject(i));
 
-            String uri = bufferObj.getURI();
+            Optional<String> uri = bufferObj.getURI();
             int byteLength = bufferObj.getByteLength();
 
-            if(uri == null) {
+            if(!uri.isPresent()) {
                 if(this.glbBuffer == null)
                     throw new IllegalStateException("GLB buffer is undefined");
 
@@ -286,7 +280,7 @@ public class GLTFLoader {
                 buffers[i] = glbBuffer;
             } else {
                 try {
-                    buffers[i] = getBuffer(uri, byteLength);
+                    buffers[i] = getBuffer(uri.get(), byteLength);
                 } catch(IOException e) {
                     throw new GLTFLoadException(e);
                 }
