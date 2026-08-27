@@ -1,6 +1,7 @@
 package io.github.onran0.retrogltf.structure.mesh;
 
 import io.github.onran0.retrogltf.constants.PrimitiveAttributeTypes;
+import io.github.onran0.retrogltf.util.JSONUtil;
 import org.json.JSONObject;
 
 import java.util.Set;
@@ -62,8 +63,8 @@ public class GLTFMeshPrimitive {
     }
 
     private final Attribute[] attributes;
-    private final int indices;
-    private final int material;
+    private final Integer indices;
+    private final Integer material;
     private final Mode mode;
 
     public GLTFMeshPrimitive(JSONObject json) {
@@ -81,17 +82,25 @@ public class GLTFMeshPrimitive {
             i++;
         }
 
-        this.indices = json.getInt("indices");
-        this.material = json.getInt("material");
-        this.mode = Mode.getById(json.getInt("mode"));
+        this.indices = JSONUtil.getNullableInt(attributes, "indices");
+        this.material = JSONUtil.getNullableInt(attributes, "material");
+        this.mode = Mode.getById(json.optInt("mode", 4));
     }
 
     public Attribute[] getAttributes() {
         return attributes;
     }
 
+    public boolean hasIndices() {
+        return indices != null;
+    }
+
     public int getIndices() {
         return indices;
+    }
+
+    public boolean hasMaterial() {
+        return material != null;
     }
 
     public int getMaterial() {

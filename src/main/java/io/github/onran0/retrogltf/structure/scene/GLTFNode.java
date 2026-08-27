@@ -20,6 +20,8 @@ public class GLTFNode {
     private final Vector3f scale;
     private final Matrix4f matrix;
 
+    private final Matrix4f localMatrix;
+
     public GLTFNode(JSONObject json) {
         this.name = json.optString("name");
 
@@ -35,7 +37,19 @@ public class GLTFNode {
         this.scale = JSONUtil.toVector3(json.getJSONArray("translation"));
 
         this.matrix = JSONUtil.toMatrix4(json.getJSONArray("matrix"));
+
+        if(this.matrix != null) {
+            this.localMatrix = matrix;
+        } else {
+            this.localMatrix = new Matrix4f();
+
+            this.localMatrix.translate(translation);
+            this.localMatrix.rotate(rotation);
+            this.localMatrix.scale(scale);
+        }
     }
+
+    // default properties getters
 
     public String getName() {
         return name;
@@ -85,7 +99,13 @@ public class GLTFNode {
         return scale;
     }
 
-    public Matrix4f getMatrix() {
+    public Matrix4f getDefinedMatrix() {
         return matrix;
+    }
+
+    // other
+
+    public Matrix4f getLocalMatrix() {
+        return localMatrix;
     }
 }
