@@ -6,16 +6,16 @@ import org.json.JSONObject;
 import java.util.Optional;
 
 public class GLTFTexture {
-    private final int sampler;
+    private final Integer sampler;
     private final Integer source;
 
     public GLTFTexture(JSONObject json) {
-        this.sampler = json.getInt("sampler");
+        this.sampler = JSONUtil.getNullableInt(json, "sampler");
         this.source = JSONUtil.getNullableInt(json, "source");
     }
 
-    public int getSampler() {
-        return sampler;
+    public Optional<Integer> getSampler() {
+        return Optional.ofNullable(sampler);
     }
 
     public Optional<Integer> getSource() {

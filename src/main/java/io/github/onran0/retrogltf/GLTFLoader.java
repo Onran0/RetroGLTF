@@ -166,9 +166,7 @@ public class GLTFLoader {
         });
 
         node.getMesh().ifPresent(this::parseMesh);
-
         node.getSkin().ifPresent(this::parseSkin);
-
         node.getCamera().ifPresent(this::parseCamera);
     }
 
@@ -211,8 +209,7 @@ public class GLTFLoader {
                 texturesJson.getJSONObject(texIndex)
         );
 
-        parseSampler(texture.getSampler());
-
+        texture.getSampler().ifPresent(this::parseSampler);
         texture.getSource().ifPresent(this::parseImage);
     }
 

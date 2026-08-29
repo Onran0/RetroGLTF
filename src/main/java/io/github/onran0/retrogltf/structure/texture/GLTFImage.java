@@ -11,17 +11,17 @@ public class GLTFImage {
     private final Integer bufferView;
 
     public GLTFImage(JSONObject json) {
-        this.uri = json.getString("uri");
-        this.mimeType = json.getString("mimeType");
+        this.uri = json.optString("uri", null);
+        this.mimeType = json.optString("mimeType", null);
         this.bufferView = JSONUtil.getNullableInt(json, "bufferView");
     }
 
-    public String getURI() {
-        return uri;
+    public Optional<String> getURI() {
+        return Optional.ofNullable(uri);
     }
 
-    public String getMimeType() {
-        return mimeType;
+    public Optional<String> getMimeType() {
+        return Optional.ofNullable(mimeType);
     }
 
     public Optional<Integer> getBufferView() {
