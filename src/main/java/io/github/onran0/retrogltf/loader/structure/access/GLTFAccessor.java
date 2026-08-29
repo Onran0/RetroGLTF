@@ -45,8 +45,6 @@ public class GLTFAccessor {
         this.elementSize = componentType.getLength() * type.getNumberOfComponents();
     }
 
-    // getters
-
     public Optional<Integer> getBufferView() {
         return Optional.ofNullable(bufferView);
     }
@@ -83,29 +81,7 @@ public class GLTFAccessor {
         return Optional.ofNullable(sparse);
     }
 
-    // other
-
     public int getElementSize() {
-        return this.elementSize;
-    }
-
-    public int getEffectiveByteStride(GLTFBufferView view) {
-        return view.getByteStride().orElse(this.elementSize);
-    }
-
-    public int getLength(GLTFBufferView view) {
-        return getLength(getEffectiveByteStride(view));
-    }
-
-    public int getLength(int byteStride) {
-        return byteStride * (count - 1) + this.elementSize;
-    }
-
-    public int getElementIndexInBuffer(GLTFBufferView view, int index) {
-        return getElementIndexInBuffer(index, getEffectiveByteStride(view), view.getByteOffset());
-    }
-
-    public int getElementIndexInBuffer(int index, int byteStride, int offset) {
-        return index * byteStride + byteOffset + offset;
+        return elementSize;
     }
 }

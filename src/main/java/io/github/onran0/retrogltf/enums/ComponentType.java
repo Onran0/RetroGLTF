@@ -1,21 +1,25 @@
 package io.github.onran0.retrogltf.enums;
 
+import java.util.Optional;
+
 public enum ComponentType {
-    SIGNED_BYTE(5120, 1),
-    UNSIGNED_BYTE(5121, 1),
-    SIGNED_SHORT(5122, 2),
-    UNSIGNED_SHORT(5123, 2),
-    UNSIGNED_INT(5125, 4),
-    FLOAT(5126, 4);
+    SIGNED_BYTE(5120, 1, 127L),
+    UNSIGNED_BYTE(5121, 1, 255L),
+    SIGNED_SHORT(5122, 2, 32767L),
+    UNSIGNED_SHORT(5123, 2, 65535L),
+    UNSIGNED_INT(5125, 4, 4294967295L),
+    FLOAT(5126, 4, 0L);
 
     private final int gltfId;
     private final int glType;
     private final int length;
+    private final Long maxValue;
 
-    ComponentType(int gltfId, int length) {
+    ComponentType(int gltfId, int length, Long maxValue) {
         this.gltfId = gltfId;
         this.glType = gltfId;
         this.length = length;
+        this.maxValue = maxValue;
     }
 
     public int getGLTFId() {
@@ -28,6 +32,10 @@ public enum ComponentType {
 
     public int getLength() {
         return length;
+    }
+
+    public Optional<Long> getMaxValue() {
+        return Optional.ofNullable(maxValue);
     }
 
     public static ComponentType getById(int id) {
