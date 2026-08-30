@@ -4,15 +4,25 @@ import io.github.onran0.retrogltf.enums.ComponentType;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFAccessor;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFAccessorType;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFBufferView;
+
+import io.github.onran0.retrogltf.loader.structure.access.GLTFSparseAccessor;
+import io.github.onran0.retrogltf.loader.util.IOUtil;
 import org.joml.*;
+import org.joml.Math;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 class AccessorsReader {
     private final GLTFAccessor[] accessors;
     private final GLTFBufferView[] views;
     private final BufferViewsReader viewsReader;
-    private final ByteBuffer tmpBuf = ByteBuffer.allocate(64);
+
+    private final Map<GLTFAccessor, Map<Integer, Integer>> sparseAccessorSrcElemIndexToSparseIndexMap = new HashMap<>();
+    private final Map<GLTFAccessor, int[]> sparseAccessorIndicesMap = new HashMap<>();
+
+    private final ByteBuffer fastBuf = ByteBuffer.allocateDirect(16384);
 
     public AccessorsReader(
             GLTFAccessor[] accessors,
@@ -22,6 +32,40 @@ class AccessorsReader {
         this.accessors = accessors;
         this.views = views;
         this.viewsReader = viewsReader;
+
+        for (GLTFAccessor accessor : accessors) {
+            accessor.getSparse().ifPresent(sparseAccessor -> {
+                Map<Integer, Integer> mappedElementsIndices = new HashMap<>();
+
+                int sparseElemsCount = sparseAccessor.getCount();
+
+                int[] sparseAccessorIndices = new int[sparseElemsCount];
+
+                int indicesView = sparseAccessor.getIndicesBufferView();
+                int indicesOffsetInView = sparseAccessor.getIndicesByteOffset();
+                ComponentType indicesCompType = sparseAccessor.getIndicesComponentType();
+
+                int indicesLength = indicesCompType.getLength() * sparseElemsCount;
+
+                ByteBuffer tmpBuf = ByteBuffer.allocate(indicesCompType.getLength() * sparseElemsCount);
+
+                viewsReader.get(
+                        tmpBuf, indicesView,
+                        indicesOffsetInView, indicesLength
+                );
+
+                for (int j = 0; j < sparseElemsCount; j++) {
+                    int elemIndex = (int) getIntegerComponent(tmpBuf, indicesCompType);
+
+                    mappedElementsIndices.put(elemIndex, j);
+
+                    sparseAccessorIndices[j] = elemIndex;
+                }
+
+                sparseAccessorSrcElemIndexToSparseIndexMap.put(accessor, mappedElementsIndices);
+                sparseAccessorIndicesMap.put(accessor, sparseAccessorIndices);
+            });
+        }
     }
 
     public int getLengthInBytes(int id) {
@@ -34,54 +78,30 @@ class AccessorsReader {
         return accessors[id].getCount();
     }
 
-    public float getScalar(int id, int index) {
-        GLTFAccessor accessor = accessors[id];
-
-        return getComponentAsFloat(accessor, getElementPositionInView(accessor, index), 0);
+    public float getFloatScalar(int id, int index) {
+        return getComponentAsFloat(accessors[id], index, 0);
     }
 
     public Vector2f getVec2(int id, int index) {
-        GLTFAccessor accessor = accessors[id];
+        float[] v = getFloats(accessors[id], index, 2);
 
-        int elemPos = getElementPositionInView(accessor, index);
-
-        return new Vector2f(
-                getComponentAsFloat(accessor, elemPos, 0),
-                getComponentAsFloat(accessor, elemPos, 1)
-        );
+        return new Vector2f(v[0], v[1]);
     }
 
     public Vector3f getVec3(int id, int index) {
-        GLTFAccessor accessor = accessors[id];
+        float[] v = getFloats(accessors[id], index, 3);
 
-        int elemPos = getElementPositionInView(accessor, index);
-
-        return new Vector3f(
-                getComponentAsFloat(accessor, elemPos, 0),
-                getComponentAsFloat(accessor, elemPos, 1),
-                getComponentAsFloat(accessor, elemPos, 2)
-        );
+        return new Vector3f(v[0], v[1], v[2]);
     }
 
     public Vector4f getVec4(int id, int index) {
-        GLTFAccessor accessor = accessors[id];
+        float[] v = getFloats(accessors[id], index, 4);
 
-        int elemPos = getElementPositionInView(accessor, index);
-
-        return new Vector4f(
-                getComponentAsFloat(accessor, elemPos, 0),
-                getComponentAsFloat(accessor, elemPos, 1),
-                getComponentAsFloat(accessor, elemPos, 2),
-                getComponentAsFloat(accessor, elemPos, 3)
-        );
+        return new Vector4f(v[0], v[1], v[2], v[3]);
     }
 
     public Matrix2f getMat2(int id, int index) {
-        GLTFAccessor accessor = accessors[id];
-
-        int elemPos = getElementPositionInView(accessor, index);
-
-        float[] m = getFloats(accessor, elemPos, 4);
+        float[] m = getFloats(accessors[id], index, 4);
 
         return new Matrix2f(
                 m[0], m[1],
@@ -90,11 +110,7 @@ class AccessorsReader {
     }
 
     public Matrix3f getMat3(int id, int index) {
-        GLTFAccessor accessor = accessors[id];
-
-        int elemPos = getElementPositionInView(accessor, index);
-
-        float[] m = getFloats(accessor, elemPos, 9);
+        float[] m = getFloats(accessors[id], index, 9);
 
         return new Matrix3f(
                 m[0], m[1], m[2],
@@ -104,11 +120,7 @@ class AccessorsReader {
     }
 
     public Matrix4f getMat4(int id, int index) {
-        GLTFAccessor accessor = accessors[id];
-
-        int elemPos = getElementPositionInView(accessor, index);
-
-        float[] m = getFloats(accessor, elemPos, 16);
+        float[] m = getFloats(accessors[id], index, 16);
 
         return new Matrix4f(
                 m[0],  m[1],  m[2],  m[3],
@@ -121,12 +133,67 @@ class AccessorsReader {
     public void getBytes(int id, ByteBuffer buf) {
         GLTFAccessor accessor = accessors[id];
 
-        viewsReader.get(
-                buf,
-                accessor.getBufferView().get(),
-                accessor.getByteOffset(),
-                getLengthInBytes(id))
-        ;
+        int srcPos = buf.position();
+        int lengthInBytes = getLengthInBytes(id);
+
+        if(accessor.getBufferView().isPresent()) {
+            viewsReader.get(
+                    buf,
+                    accessor.getBufferView().get(),
+                    accessor.getByteOffset(),
+                    lengthInBytes
+            );
+
+            buf.position(srcPos);
+        } else {
+            IOUtil.fillBufferWithZeros(buf, lengthInBytes);
+        }
+
+        if(accessor.getSparse().isPresent()) {
+            GLTFSparseAccessor sparseAccessor = accessor.getSparse().get();
+
+            int requiredCapacityForSparseValues = accessor.getElementSize() * sparseAccessor.getCount();
+
+            ByteBuffer sparseValuesBuffer;
+
+            // TODO: multi batching for more fast load without heap allocations
+            if(fastBuf.capacity() >= requiredCapacityForSparseValues) {
+                sparseValuesBuffer = fastBuf;
+                sparseValuesBuffer.position(0);
+            } else {
+                sparseValuesBuffer = ByteBuffer.allocate(requiredCapacityForSparseValues);
+            }
+
+            viewsReader.get(
+                    sparseValuesBuffer,
+                    sparseAccessor.getValuesBufferView(),
+                    sparseAccessor.getValuesByteOffset(),
+                    requiredCapacityForSparseValues
+            );
+
+            int elementSize = accessor.getElementSize();
+
+            int prevSparseBufLimit = sparseValuesBuffer.limit();
+
+            int[] sparseAccessorIndices = sparseAccessorIndicesMap.get(accessor);
+
+            for(int sparseElemIndex = 0;sparseElemIndex < sparseAccessorIndices.length; sparseElemIndex++) {
+                int srcElemIndex = sparseAccessorIndices[sparseElemIndex];
+
+                int sparseValuePos = sparseElemIndex * elementSize;
+
+                sparseValuesBuffer.position(sparseValuePos);
+                sparseValuesBuffer.limit(sparseValuePos + elementSize);
+
+                buf.position(getElementPositionInView(accessor, srcElemIndex));
+                buf.put(sparseValuesBuffer);
+            }
+
+            sparseValuesBuffer.position(0);
+            sparseValuesBuffer.limit(prevSparseBufLimit);
+
+            buf.position(srcPos);
+        }
     }
 
     private float[] getFloats(GLTFAccessor accessor, int elemPos, int count) {
@@ -139,15 +206,36 @@ class AccessorsReader {
         return res;
     }
 
-    private float getComponentAsFloat(GLTFAccessor accessor, int elemPos, int compIndex) {
+    private float getComponentAsFloat(GLTFAccessor accessor, int elemIndex, int compIndex) {
         GLTFAccessorType accessorType = accessor.getType();
         ComponentType compType = accessor.getComponentType();
 
         int componentSize = compType.getLength();
 
-        // TODO: support of sparse accessors
+        int viewId = -1;
+        int elemPos = -1;
 
-        int viewId = accessor.getBufferView().get();
+        boolean getFromDefaultView = true;
+
+        if(accessor.getSparse().isPresent()) {
+            Map<Integer, Integer> srcIndexToSparseIndex = sparseAccessorSrcElemIndexToSparseIndexMap.get(accessor);
+
+            if(srcIndexToSparseIndex.containsKey(elemIndex)) {
+                int sparseIndex = srcIndexToSparseIndex.get(elemIndex);
+
+                viewId = accessor.getSparse().get().getValuesBufferView();
+                elemPos = getSparseElementPositionInView(accessor, sparseIndex);
+
+                getFromDefaultView = false;
+            } else if(!accessor.getBufferView().isPresent()) {
+                return 0.0f;
+            }
+        }
+
+        if(getFromDefaultView && accessor.getBufferView().isPresent()) {
+            viewId = accessor.getBufferView().get();
+            elemPos = getElementPositionInView(accessor, elemIndex);
+        }
 
         int offset = elemPos;
 
@@ -165,46 +253,51 @@ class AccessorsReader {
             offset += columnLengthInBytes * column + row * componentSize;
         }
 
-        viewsReader.get(tmpBuf, viewId, offset, componentSize);
+        fastBuf.position(0);
 
-        tmpBuf.position(0);
+        viewsReader.get(fastBuf, viewId, offset, componentSize);
 
-        try {
-            long res;
+        fastBuf.position(0);
 
-            switch(compType) {
-                case FLOAT:
-                    return tmpBuf.getFloat();
+        float res = getComponentAsFloat(fastBuf, compType, accessor.isNormalized());
 
-                case SIGNED_BYTE:
-                    res = tmpBuf.get();
-                    break;
+        fastBuf.position(0);
 
-                case UNSIGNED_BYTE:
-                    res = tmpBuf.get() - (long) Byte.MIN_VALUE;
-                    break;
+        return res;
+    }
 
-                case SIGNED_SHORT:
-                    res = tmpBuf.getShort();
-                    break;
+    private float getComponentAsFloat(ByteBuffer buf, ComponentType compType, boolean normalized) {
+        if(compType == ComponentType.FLOAT) {
+            return buf.getFloat();
+        } else {
+            long intComp = getIntegerComponent(buf, compType);
 
-                case UNSIGNED_SHORT:
-                    res = tmpBuf.getShort() - (long) Short.MIN_VALUE;
-                    break;
-
-                case UNSIGNED_INT:
-                    return (float) (tmpBuf.getInt() - (long) Integer.MIN_VALUE);
-
-                default: throw new IllegalArgumentException(compType.name());
-            }
-
-            if(accessor.isNormalized() && compType.getMaxValue().isPresent()) {
-                return res / (float) compType.getMaxValue().get();
+            if(compType == ComponentType.UNSIGNED_INT || !normalized) {
+                return intComp;
             } else {
-                return (float) res;
+                return Math.clamp(-1.0F, 1.0F, intComp / (float) compType.getMaxValue());
             }
-        } finally {
-            tmpBuf.position(0);
+        }
+    }
+
+    private long getIntegerComponent(ByteBuffer buf, ComponentType compType) {
+        switch(compType) {
+            case SIGNED_BYTE:
+                return buf.get();
+
+            case UNSIGNED_BYTE:
+                return buf.get() & 0xFF;
+
+            case SIGNED_SHORT:
+                return buf.getShort();
+
+            case UNSIGNED_SHORT:
+                return buf.getShort() & 0xFFFF;
+
+            case UNSIGNED_INT:
+                return buf.getInt() & 0xFFFFFFFFL;
+
+            default: throw new IllegalArgumentException(compType.name());
         }
     }
 
@@ -218,5 +311,9 @@ class AccessorsReader {
 
     private int getElementPositionInView(GLTFAccessor accessor, int index) {
         return index * getEffectiveByteStride(accessor) + accessor.getByteOffset();
+    }
+
+    private int getSparseElementPositionInView(GLTFAccessor accessor, int index) {
+        return index * accessor.getElementSize() + accessor.getSparse().get().getValuesByteOffset();
     }
 }

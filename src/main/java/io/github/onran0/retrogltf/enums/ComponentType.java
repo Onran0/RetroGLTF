@@ -13,9 +13,9 @@ public enum ComponentType {
     private final int gltfId;
     private final int glType;
     private final int length;
-    private final Long maxValue;
+    private final long maxValue;
 
-    ComponentType(int gltfId, int length, Long maxValue) {
+    ComponentType(int gltfId, int length, long maxValue) {
         this.gltfId = gltfId;
         this.glType = gltfId;
         this.length = length;
@@ -34,8 +34,8 @@ public enum ComponentType {
         return length;
     }
 
-    public Optional<Long> getMaxValue() {
-        return Optional.ofNullable(maxValue);
+    public long getMaxValue() {
+        return maxValue;
     }
 
     public static ComponentType getById(int id) {

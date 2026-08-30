@@ -42,7 +42,18 @@ public class GLTFAccessor {
             this.sparse = null;
         }
 
-        this.elementSize = componentType.getLength() * type.getNumberOfComponents();
+        int componentSize = componentType.getLength();
+
+        if(!this.type.isMatrixType()) {
+            this.elementSize = componentSize * type.getNumberOfComponents();
+        } else {
+            int dim = type.getMatrixDimension();
+
+            int columnPaddingBytes = (componentSize * dim) % 4;
+            int columnLengthInBytes = componentSize * dim + columnPaddingBytes;
+
+            this.elementSize = columnLengthInBytes * dim;
+        }
     }
 
     public Optional<Integer> getBufferView() {
