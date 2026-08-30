@@ -47,7 +47,16 @@ class AccessorsReader {
 
                 int indicesLength = indicesCompType.getLength() * sparseElemsCount;
 
-                ByteBuffer tmpBuf = ByteBuffer.allocate(indicesCompType.getLength() * sparseElemsCount);
+                int requiredLength = indicesCompType.getLength() * sparseElemsCount;
+
+                ByteBuffer tmpBuf;
+
+                // TODO: multi batching for more fast load without heap allocations
+                if(fastBuf.capacity() >= requiredLength) {
+                    tmpBuf = fastBuf;
+                } else {
+                    tmpBuf = ByteBuffer.allocate(requiredLength);
+                }
 
                 viewsReader.get(
                         tmpBuf, indicesView,
@@ -61,6 +70,8 @@ class AccessorsReader {
 
                     sparseAccessorIndices[j] = elemIndex;
                 }
+
+                tmpBuf.position(0);
 
                 sparseAccessorSrcElemIndexToSparseIndexMap.put(accessor, mappedElementsIndices);
                 sparseAccessorIndicesMap.put(accessor, sparseAccessorIndices);
