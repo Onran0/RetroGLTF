@@ -9,8 +9,9 @@ import java.util.List;
 public class Node {
     private final String name;
     private final GLMesh mesh;
+    private final int meshFrontFaceMode;
 
-    private final Material material;
+    private final Material[] materials;
 
     private final Matrix4f localMatrix;
     private final Matrix4f matrix;
@@ -18,10 +19,11 @@ public class Node {
     private Node parent;
     private final List<Node> children = new ArrayList<>();
 
-    public Node(String name, GLMesh mesh, Material material, Matrix4f localMatrix, Node parent) {
+    public Node(String name, GLMesh mesh, int meshFrontFaceMode, Material[] materials, Matrix4f localMatrix, Node parent) {
         this.name = name;
         this.mesh = mesh;
-        this.material = material;
+        this.meshFrontFaceMode = meshFrontFaceMode;
+        this.materials = materials;
         this.localMatrix = localMatrix;
         this.matrix = new Matrix4f();
         this.parent = parent;
@@ -31,16 +33,24 @@ public class Node {
         return this.name;
     }
 
-    public Material getMaterial() {
-        return this.material;
+    public Material getMaterial(int index) {
+        return this.materials[index];
     }
 
-    public void setMaterial(Material material) {
-        this.material.set(material);
+    public void setMaterial(int index, Material material) {
+        this.materials[index].set(material);
+    }
+
+    public int getMaterialsCount() {
+        return this.materials.length;
     }
 
     public GLMesh getMesh() {
         return this.mesh;
+    }
+
+    public int getFrontFaceMode() {
+        return this.meshFrontFaceMode;
     }
 
     public void getLocalMatrix(Matrix4f dst) {

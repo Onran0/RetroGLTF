@@ -17,8 +17,4 @@ public class Material {
     public void set(Material material) {
         this.diffuse = material.getDiffuse();
     }
-
-    public void destroy() {
-        this.diffuse.destroy();
-    }
 }

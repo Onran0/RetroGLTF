@@ -1,5 +1,6 @@
 package io.github.onran0.retrogltf.loader.structure.mesh;
 
+import io.github.onran0.retrogltf.enums.ElementsType;
 import io.github.onran0.retrogltf.enums.PrimitiveAttributeTypes;
 import io.github.onran0.retrogltf.loader.util.JSONUtil;
 import org.json.JSONObject;
@@ -8,34 +9,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public class GLTFMeshPrimitive {
-    public enum Mode {
-        POINTS(0),
-        LINE_STRIPS(1),
-        LINE_LOOPS(2),
-        LINES(3),
-        TRIANGLES(4),
-        TRIANGLE_STRIPS(5),
-        TRIANGLE_FANS(6);
-
-        private final int id;
-
-        Mode(int id) {
-            this.id = id;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public static Mode getById(int id) {
-            for(Mode type : Mode.values()) {
-                if(type.getId() == id)
-                    return type;
-            }
-
-            return null;
-        }
-    }
 
     public static class Attribute {
         private final String type;
@@ -66,7 +39,7 @@ public class GLTFMeshPrimitive {
     private final Attribute[] attributes;
     private final Integer indices;
     private final Integer material;
-    private final Mode mode;
+    private final ElementsType mode;
 
     public GLTFMeshPrimitive(JSONObject json) {
         JSONObject attributes = json.getJSONObject("attributes");
@@ -85,7 +58,7 @@ public class GLTFMeshPrimitive {
 
         this.indices = JSONUtil.getNullableInt(attributes, "indices");
         this.material = JSONUtil.getNullableInt(attributes, "material");
-        this.mode = Mode.getById(json.optInt("mode", 4));
+        this.mode = ElementsType.getById(json.optInt("mode", 4));
     }
 
     public Attribute[] getAttributes() {
@@ -100,7 +73,7 @@ public class GLTFMeshPrimitive {
         return Optional.ofNullable(material);
     }
 
-    public Mode getMode() {
+    public ElementsType getMode() {
         return mode;
     }
 }

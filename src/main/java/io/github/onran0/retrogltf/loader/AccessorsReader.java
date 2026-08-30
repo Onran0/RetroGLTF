@@ -22,7 +22,7 @@ class AccessorsReader {
     private final Map<GLTFAccessor, Map<Integer, Integer>> sparseAccessorSrcElemIndexToSparseIndexMap = new HashMap<>();
     private final Map<GLTFAccessor, int[]> sparseAccessorIndicesMap = new HashMap<>();
 
-    private final ByteBuffer fastBuf = ByteBuffer.allocateDirect(1048576);
+    private final ByteBuffer fastBuf = ByteBuffer.allocateDirect(1024 * 1024);
 
     public AccessorsReader(
             GLTFAccessor[] accessors,
@@ -49,14 +49,8 @@ class AccessorsReader {
 
                 int requiredLength = indicesCompType.getLength() * sparseElemsCount;
 
-                ByteBuffer tmpBuf;
-
                 // TODO: multi batching for more fast load without heap allocations
-                if(fastBuf.capacity() >= requiredLength) {
-                    tmpBuf = fastBuf;
-                } else {
-                    tmpBuf = ByteBuffer.allocate(requiredLength);
-                }
+                ByteBuffer tmpBuf = IOUtil.getFastOrAlloc(fastBuf, requiredLength);
 
                 viewsReader.get(
                         tmpBuf, indicesView,
@@ -79,10 +73,12 @@ class AccessorsReader {
         }
     }
 
-    public int getLengthInBytes(int id) {
-        GLTFAccessor accessor = accessors[id];
-
+    public int getLengthInBytes(GLTFAccessor accessor) {
         return getEffectiveByteStride(accessor) * (accessor.getCount() - 1) + accessor.getElementSize();
+    }
+
+    public int getLengthInBytes(int id) {
+        return getLengthInBytes(accessors[id]);
     }
 
     public int getElementsCount(int id) {
@@ -165,15 +161,8 @@ class AccessorsReader {
 
             int requiredCapacityForSparseValues = accessor.getElementSize() * sparseAccessor.getCount();
 
-            ByteBuffer sparseValuesBuffer;
-
             // TODO: multi batching for more fast load without heap allocations
-            if(fastBuf.capacity() >= requiredCapacityForSparseValues) {
-                sparseValuesBuffer = fastBuf;
-                sparseValuesBuffer.position(0);
-            } else {
-                sparseValuesBuffer = ByteBuffer.allocate(requiredCapacityForSparseValues);
-            }
+            ByteBuffer sparseValuesBuffer = IOUtil.getFastOrAlloc(fastBuf, requiredCapacityForSparseValues);
 
             viewsReader.get(
                     sparseValuesBuffer,

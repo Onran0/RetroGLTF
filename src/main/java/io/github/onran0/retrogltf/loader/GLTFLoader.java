@@ -1,13 +1,16 @@
 package io.github.onran0.retrogltf.loader;
 
+import io.github.onran0.retrogltf.Node;
 import io.github.onran0.retrogltf.loader.io.IFileProvider;
-import io.github.onran0.retrogltf.loader.io.LegacyFileProvider;
-import io.github.onran0.retrogltf.loader.io.NIOFileProvider;
+import io.github.onran0.retrogltf.loader.structure.access.GLTFAccessor;
+import io.github.onran0.retrogltf.loader.structure.access.GLTFBufferView;
+import io.github.onran0.retrogltf.loader.structure.mesh.GLTFMesh;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
+import java.util.List;
 
 public class GLTFLoader {
     private final GLTFParser parser;
@@ -35,15 +38,35 @@ public class GLTFLoader {
     public void load() throws GLTFLoadException {
         this.parser.parse();
 
+        GLTFBufferView[] views = this.parser.getViews();
+        GLTFAccessor[] accessors = this.parser.getAccessors();
+        GLTFMesh[] meshes = this.parser.getMeshes();
+
         BufferViewsReader viewsReader = new BufferViewsReader(
                 this.parser.getBuffers(),
-                this.parser.getViews()
+                views
         );
 
         AccessorsReader accessorsReader = new AccessorsReader(
-                this.parser.getAccessors(),
-                this.parser.getViews(),
+                accessors,
+                views,
                 viewsReader
         );
+
+        MeshLoader meshLoader = new MeshLoader(
+                viewsReader,
+                accessorsReader,
+                views,
+                accessors,
+                meshes
+        );
+
+        IntermediateMesh[] loadedMeshes = new IntermediateMesh[meshes.length];
+
+        for(int i = 0;i < meshes.length;i++) {
+            if(meshes[i] != null) {
+                loadedMeshes[i] = meshLoader.loadMesh(i);
+            }
+        }
     }
 }

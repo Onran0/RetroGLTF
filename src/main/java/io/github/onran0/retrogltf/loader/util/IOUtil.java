@@ -52,6 +52,24 @@ public class IOUtil {
         return buffer;
     }
 
+    public static ByteBuffer getFastOrDirectAlloc(ByteBuffer fastBuf, int requiredLen) {
+        if(fastBuf.capacity() >= requiredLen) {
+            fastBuf.position(0);
+            return fastBuf;
+        } else {
+            return ByteBuffer.allocateDirect(requiredLen);
+        }
+    }
+
+    public static ByteBuffer getFastOrAlloc(ByteBuffer fastBuf, int requiredLen) {
+        if(fastBuf.capacity() >= requiredLen) {
+            fastBuf.position(0);
+            return fastBuf;
+        } else {
+            return ByteBuffer.allocate(requiredLen);
+        }
+    }
+
     public static void fillBufferWithZeros(ByteBuffer buf, int length) {
         if (length <= 0) return;
 
