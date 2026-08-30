@@ -85,7 +85,7 @@ class AccessorsReader {
         return getEffectiveByteStride(accessor) * (accessor.getCount() - 1) + accessor.getElementSize();
     }
 
-    public int getCount(int id) {
+    public int getElementsCount(int id) {
         return accessors[id].getCount();
     }
 
