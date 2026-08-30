@@ -22,7 +22,7 @@ class AccessorsReader {
     private final Map<GLTFAccessor, Map<Integer, Integer>> sparseAccessorSrcElemIndexToSparseIndexMap = new HashMap<>();
     private final Map<GLTFAccessor, int[]> sparseAccessorIndicesMap = new HashMap<>();
 
-    private final ByteBuffer fastBuf = ByteBuffer.allocateDirect(16384);
+    private final ByteBuffer fastBuf = ByteBuffer.allocateDirect(1048576);
 
     public AccessorsReader(
             GLTFAccessor[] accessors,
