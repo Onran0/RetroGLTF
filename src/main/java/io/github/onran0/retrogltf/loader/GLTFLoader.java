@@ -1,6 +1,7 @@
 package io.github.onran0.retrogltf.loader;
 
 import io.github.onran0.retrogltf.GLTexture;
+import io.github.onran0.retrogltf.Material;
 import io.github.onran0.retrogltf.loader.io.IFileProvider;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFAccessor;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFBufferView;
@@ -75,14 +76,21 @@ public class GLTFLoader {
                 this.parser.getImages()
         );
 
-        BufferedImage[] images = imagesLoader.loadImages();
-
         TexturesLoader texturesLoader = new TexturesLoader(
                 this.parser.getTextures(),
                 this.parser.getTextureSamplers(),
-                images
+                imagesLoader.loadImages()
         );
 
         GLTexture[] textures = texturesLoader.loadTextures();
+
+        MaterialsLoader materialsLoader = new MaterialsLoader(
+                this.parser.getMaterials(),
+                textures
+        );
+
+        Material[] materials = materialsLoader.loadMaterials();
+
+
     }
 }
