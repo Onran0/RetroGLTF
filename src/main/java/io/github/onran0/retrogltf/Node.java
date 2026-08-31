@@ -26,7 +26,8 @@ public class Node {
         this.materials = materials;
         this.localMatrix = localMatrix;
         this.matrix = new Matrix4f();
-        this.parent = parent;
+
+        this.setParent(parent);
     }
 
     public String getName() {
@@ -64,6 +65,19 @@ public class Node {
 
     public void getMatrix(Matrix4f dst) {
         dst.set(this.matrix);
+    }
+
+    public void updateGlobalMatrix() {
+        if(parent == null) {
+            matrix.set(this.localMatrix);
+        } else {
+            matrix.set(parent.matrix);
+            matrix.mul(this.localMatrix);
+        }
+
+        for(Node child : children) {
+            child.updateGlobalMatrix();
+        }
     }
 
     public List<Node> getChildren() {
@@ -107,18 +121,5 @@ public class Node {
         }
 
         updateGlobalMatrix();
-    }
-
-    private void updateGlobalMatrix() {
-        if(parent == null) {
-            matrix.set(this.localMatrix);
-        } else {
-            matrix.set(parent.matrix);
-            matrix.mul(this.localMatrix);
-        }
-
-        for(Node child : children) {
-            child.updateGlobalMatrix();
-        }
     }
 }

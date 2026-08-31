@@ -2,6 +2,7 @@ package io.github.onran0.retrogltf.loader;
 
 import io.github.onran0.retrogltf.GLTexture;
 import io.github.onran0.retrogltf.Material;
+import io.github.onran0.retrogltf.Node;
 import io.github.onran0.retrogltf.loader.io.IFileProvider;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFAccessor;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFBufferView;
@@ -12,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
+import java.util.List;
 
 public class GLTFLoader {
     private final GLTFParser parser;
@@ -90,6 +92,14 @@ public class GLTFLoader {
         );
 
         Material[] materials = materialsLoader.loadMaterials();
+
+        NodesLoader nodesLoader = new NodesLoader(
+                this.parser,
+                this.parser.getNodes(),
+                loadedMeshes, materials
+        );
+
+        List<Node> nodes = nodesLoader.loadNodes();
 
 
     }

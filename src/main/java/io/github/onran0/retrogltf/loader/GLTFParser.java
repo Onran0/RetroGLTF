@@ -299,16 +299,6 @@ class GLTFParser {
         images[imgIndex] = new GLTFImage(imagesJson.getJSONObject(imgIndex));
     }
 
-//    private Matrix4f getNodeGlobalMatrix(int index) {
-//        Matrix4f localMatrix = nodes[index].getLocalMatrix();
-//
-//        if(!isNodeChildren[index]) {
-//            return new Matrix4f(localMatrix);
-//        } else {
-//            return getNodeGlobalMatrix(nodeParents[index]).mul(localMatrix);
-//        }
-//    }
-
     public void parse() throws GLTFLoadException {
         GLTFAsset asset = new GLTFAsset(root.getJSONObject("asset"));
 
