@@ -3,13 +3,13 @@ package io.github.onran0.retrogltf.loader;
 import io.github.onran0.retrogltf.GLTexture;
 import io.github.onran0.retrogltf.Material;
 import io.github.onran0.retrogltf.Node;
+import io.github.onran0.retrogltf.Scene;
 import io.github.onran0.retrogltf.loader.io.IFileProvider;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFAccessor;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFBufferView;
 import io.github.onran0.retrogltf.loader.structure.mesh.GLTFMesh;
 import org.json.JSONObject;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
@@ -38,7 +38,7 @@ public class GLTFLoader {
         this.parser = new GLTFParser(root, dir);
     }
 
-    public void load() throws GLTFLoadException {
+    public Scene load() throws GLTFLoadException {
         this.parser.parse();
 
         GLTFBufferView[] views = this.parser.getViews();
@@ -101,6 +101,6 @@ public class GLTFLoader {
 
         List<Node> nodes = nodesLoader.loadNodes();
 
-
+        return new Scene(this.parser.getScene().getName().orElse(null), nodes);
     }
 }

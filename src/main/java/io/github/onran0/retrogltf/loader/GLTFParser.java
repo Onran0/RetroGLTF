@@ -42,6 +42,8 @@ class GLTFParser {
     private GLTFBufferView[] views;
     private GLTFAccessor[] accessors;
 
+    private GLTFScene scene;
+
     private GLTFNode[] nodes;
 
     private GLTFCamera[] cameras;
@@ -144,6 +146,10 @@ class GLTFParser {
         return nodes;
     }
 
+    public GLTFScene getScene() {
+        return scene;
+    }
+
     public GLTFCamera[] getCameras() {
         return cameras;
     }
@@ -210,7 +216,7 @@ class GLTFParser {
     }
 
     private void parseUsedGLTFProperties(int sceneIndex) {
-        GLTFScene scene = new GLTFScene(
+        this.scene = new GLTFScene(
                 root.getJSONArray("scenes").getJSONObject(sceneIndex)
         );
 
