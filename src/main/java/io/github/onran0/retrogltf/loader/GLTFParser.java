@@ -101,7 +101,7 @@ class GLTFParser {
         this(root, new NIOFileProvider(dir));
     }
 
-    private ByteBuffer getBuffer(String srcUri, Integer byteLength) throws IOException {
+    public ByteBuffer getBuffer(String srcUri, Integer byteLength) throws IOException {
         String uri = URLDecoder.decode(srcUri, "UTF-8");
 
         if(uri.startsWith("data:")) {
@@ -117,7 +117,11 @@ class GLTFParser {
                 if(this.fileProvider == null)
                     throw new IllegalStateException("File provider is undefined");
 
-                return this.fileProvider.getFileData(uri, byteLength);
+                if(byteLength > 0) {
+                    return this.fileProvider.getFileData(uri, byteLength);
+                } else {
+                    return this.fileProvider.getFileData(uri);
+                }
             } else {
                 throw new IllegalArgumentException("Unsupported buffer URI: " + srcUri);
             }

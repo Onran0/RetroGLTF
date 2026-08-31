@@ -13,6 +13,14 @@ class BufferViewsReader {
         this.views = views;
     }
 
+    public int getViewLength(int id) {
+        return views[id].getByteLength();
+    }
+
+    public void get(ByteBuffer buf, int id, int offset) {
+        get(buf, id, offset, views[id].getByteLength());
+    }
+
     public void get(ByteBuffer buf, int id, int offset, int length) {
         GLTFBufferView view = views[id];
         ByteBuffer src = buffers[view.getBuffer()];

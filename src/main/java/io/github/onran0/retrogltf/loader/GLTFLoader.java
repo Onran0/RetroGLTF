@@ -1,16 +1,15 @@
 package io.github.onran0.retrogltf.loader;
 
-import io.github.onran0.retrogltf.Node;
 import io.github.onran0.retrogltf.loader.io.IFileProvider;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFAccessor;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFBufferView;
 import io.github.onran0.retrogltf.loader.structure.mesh.GLTFMesh;
 import org.json.JSONObject;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.util.List;
 
 public class GLTFLoader {
     private final GLTFParser parser;
@@ -68,5 +67,13 @@ public class GLTFLoader {
                 loadedMeshes[i] = meshLoader.loadMesh(i);
             }
         }
+
+        ImagesLoader imagesLoader = new ImagesLoader(
+                this.parser,
+                viewsReader,
+                this.parser.getImages()
+        );
+
+        BufferedImage[] images = imagesLoader.loadImages();
     }
 }
