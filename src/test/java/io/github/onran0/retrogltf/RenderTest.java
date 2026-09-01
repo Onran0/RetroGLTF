@@ -9,15 +9,27 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public final class RenderTest {
 
     public static void main(String[] args) throws LWJGLException, IOException, GLTFLoadException {
+        System.out.println("Loading glTF...");
+
         long start = System.currentTimeMillis();
 
-        Scene scene = new GLTFLoader(new JSONObject(Files.readAllLines(Paths.get("./test.gltf")))).load();
+        Scene scene = new GLTFLoader(
+                new JSONObject(
+                        new String(
+                                Files.readAllBytes(
+                                        Paths.get("./test.gltf")
+                                ),
+                                StandardCharsets.UTF_8
+                        )
+                )
+        ).load();
 
         long end = System.currentTimeMillis();
 
