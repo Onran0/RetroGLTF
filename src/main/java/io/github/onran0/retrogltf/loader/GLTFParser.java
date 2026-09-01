@@ -275,13 +275,17 @@ class GLTFParser {
 
         GLTFPBRMetallicRoughness pbr = material.getPBRMetallicRoughness();
 
-        Stream.of(
-                material.getEmissiveTexture(),
-                material.getNormalTexture(),
-                material.getOcclusionTexture(),
-                pbr.getBaseColorTexture(),
-                pbr.getMetallicRoughnessTexture()
-        ).forEach(tex -> tex.ifPresent(this::parseTextureByInfo));
+        // TODO: fully PBR support
+
+        pbr.getBaseColorTexture().ifPresent(this::parseTextureByInfo);
+
+//        Stream.of(
+//                material.getEmissiveTexture(),
+//                material.getNormalTexture(),
+//                material.getOcclusionTexture(),
+//                pbr.getBaseColorTexture(),
+//                pbr.getMetallicRoughnessTexture()
+//        ).forEach(tex -> tex.ifPresent(this::parseTextureByInfo));
     }
 
     private void parseTextureByInfo(GLTFTextureInfo texInfo) {
