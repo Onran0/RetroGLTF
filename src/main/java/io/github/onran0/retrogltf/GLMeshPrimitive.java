@@ -8,13 +8,14 @@ public class GLMeshPrimitive {
     private final int eboIndicesType;
 
     private final int elementsType;
+    private final int verticesCount;
 
     private final int materialIndex;
 
     public GLMeshPrimitive(
             int vao, int vbo,
             int ebo, int eboIndicesType,
-            int elementsType,
+            int elementsType, int verticesCount,
             int materialIndex
     ) {
         this.vao = vao;
@@ -24,6 +25,7 @@ public class GLMeshPrimitive {
         this.eboIndicesType = eboIndicesType;
 
         this.elementsType = elementsType;
+        this.verticesCount = verticesCount;
 
         this.materialIndex = materialIndex;
     }
@@ -50,6 +52,10 @@ public class GLMeshPrimitive {
 
     public int getElementsType() {
         return this.elementsType;
+    }
+
+    public int getVerticesCount() {
+        return this.verticesCount;
     }
 
     public int getMaterialIndex() {

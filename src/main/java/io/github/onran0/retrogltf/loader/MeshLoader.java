@@ -109,6 +109,7 @@ class MeshLoader {
             int ebo = primitive.getIndices().isPresent() ? GL15.glGenBuffers() : -1;
             int eboIndicesType = -1;
             int elementsType = primitive.getMode().getGLType();
+            int verticesCount = 0;
 
             GL30.glBindVertexArray(vao);
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
@@ -136,6 +137,8 @@ class MeshLoader {
                     );
 
                     GL20.glEnableVertexAttribArray(loc);
+
+                    verticesCount = accessor.getCount();
                 }
             } else {
                 int requiredBufLength = 0;
@@ -175,6 +178,8 @@ class MeshLoader {
                     GL20.glEnableVertexAttribArray(loc);
 
                     offset += accessorsReader.getLengthInBytes(attribute.getAccessor());
+
+                    verticesCount = accessor.getCount();
                 }
             }
 
@@ -202,12 +207,14 @@ class MeshLoader {
                         buf,
                         GL15.GL_STATIC_DRAW
                 );
-
-                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
             }
 
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
             GL30.glBindVertexArray(0);
+
+            if(primitive.getIndices().isPresent()) {
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+            }
 
             int localMaterialIndex = -1;
 
@@ -227,7 +234,7 @@ class MeshLoader {
             glPrimitives[i] = new GLMeshPrimitive(
                     vao, vbo,
                     ebo, eboIndicesType,
-                    elementsType,
+                    elementsType, verticesCount,
                     localMaterialIndex
             );
         }
