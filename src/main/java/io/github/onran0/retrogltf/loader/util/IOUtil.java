@@ -55,6 +55,7 @@ public class IOUtil {
     public static ByteBuffer getFastOrDirectAlloc(ByteBuffer fastBuf, int requiredLen) {
         if(fastBuf.capacity() >= requiredLen) {
             fastBuf.position(0);
+            fastBuf.limit(requiredLen);
             return fastBuf;
         } else {
             return ByteBuffer.allocateDirect(requiredLen);
@@ -64,6 +65,7 @@ public class IOUtil {
     public static ByteBuffer getFastOrAlloc(ByteBuffer fastBuf, int requiredLen) {
         if(fastBuf.capacity() >= requiredLen) {
             fastBuf.position(0);
+            fastBuf.limit(requiredLen);
             return fastBuf;
         } else {
             return ByteBuffer.allocate(requiredLen);
