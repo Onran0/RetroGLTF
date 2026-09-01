@@ -34,11 +34,11 @@ public class GLTFNode {
         this.skin = JSONUtil.getNullableInt(json, "skin");
         this.weights = JSONUtil.toFloatArray(json.optJSONArray("weights"));
 
-        this.translation = JSONUtil.toVector3(json.getJSONArray("translation"), new Vector3f());
-        this.rotation = JSONUtil.toQuaternion(json.getJSONArray("rotation"), new Quaternionf());
-        this.scale = JSONUtil.toVector3(json.getJSONArray("translation"), new Vector3f());
+        this.translation = JSONUtil.toVector3(json.optJSONArray("translation"), new Vector3f());
+        this.rotation = JSONUtil.toQuaternion(json.optJSONArray("rotation"), new Quaternionf());
+        this.scale = JSONUtil.toVector3(json.optJSONArray("translation"), new Vector3f());
 
-        this.matrix = JSONUtil.toMatrix4(json.getJSONArray("matrix"));
+        this.matrix = JSONUtil.toMatrix4(json.optJSONArray("matrix"));
 
         if(this.matrix != null) {
             this.localMatrix = matrix;
