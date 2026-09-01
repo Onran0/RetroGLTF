@@ -42,6 +42,8 @@ class ImagesLoader {
                     }
                 } else throw new GLTFLoadException("invalid image by id " + i);
 
+                imgBuf.rewind();
+
                 try {
                     loadedImages[i] = ImageIO.read(new ByteBufferInputStream(imgBuf));
                 } catch (IOException e) {

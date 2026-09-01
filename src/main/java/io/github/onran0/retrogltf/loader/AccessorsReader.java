@@ -59,6 +59,8 @@ class AccessorsReader {
                         indicesOffsetInView, indicesLength
                 );
 
+                tmpBuf.flip();
+
                 for (int j = 0; j < sparseElemsCount; j++) {
                     int elemIndex = (int) getIntegerComponent(tmpBuf, indicesCompType);
 
@@ -155,8 +157,6 @@ class AccessorsReader {
             );
         } else {
             IOUtil.fillBufferWithZeros(buf, lengthInBytes);
-
-            buf.position(endPos);
         }
 
         if(accessor.getSparse().isPresent()) {
@@ -176,6 +176,8 @@ class AccessorsReader {
                     requiredCapacityForSparseValues
             );
 
+            sparseValuesBuffer.flip();
+
             int elementSize = accessor.getElementSize();
 
             int prevSparseBufLimit = sparseValuesBuffer.limit();
@@ -190,15 +192,15 @@ class AccessorsReader {
                 sparseValuesBuffer.position(sparseValuePos);
                 sparseValuesBuffer.limit(sparseValuePos + elementSize);
 
-                buf.position(getElementPositionInView(accessor, srcElemIndex));
+                buf.position(srcPos + getElementPositionInView(accessor, srcElemIndex));
                 buf.put(sparseValuesBuffer);
             }
 
             sparseValuesBuffer.position(0);
             sparseValuesBuffer.limit(prevSparseBufLimit);
-
-            buf.position(endPos);
         }
+
+        buf.position(endPos);
     }
 
     private float[] getFloats(GLTFAccessor accessor, int elemPos, int count) {
@@ -258,15 +260,15 @@ class AccessorsReader {
             offset += columnLengthInBytes * column + row * componentSize;
         }
 
-        fastBuf.position(0);
+        fastBuf.rewind();
 
         viewsReader.get(fastBuf, viewId, offset, componentSize);
 
-        fastBuf.position(0);
+        fastBuf.rewind();
 
         float res = getComponentAsFloat(fastBuf, compType, accessor.isNormalized());
 
-        fastBuf.position(0);
+        fastBuf.rewind();
 
         return res;
     }

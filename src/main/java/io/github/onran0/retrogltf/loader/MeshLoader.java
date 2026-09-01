@@ -73,6 +73,8 @@ class MeshLoader {
 
         viewsReader.get(buf, prevAttribBufferView, minPosInView, len);
 
+        buf.flip();
+
         return buf;
     }
 
@@ -156,6 +158,8 @@ class MeshLoader {
                     accessorsReader.getBytes(attribute.getAccessor(), buf);
                 }
 
+                buf.flip();
+
                 GL15.glBufferData(
                         GL15.GL_ARRAY_BUFFER,
                         buf,
@@ -199,11 +203,9 @@ class MeshLoader {
 
                 ByteBuffer buf = IOUtil.getFastOrDirectAlloc(fastBuf, len);
 
-                buf.mark();
-
                 accessorsReader.getBytes(indicesAccessorId, buf);
 
-                buf.reset();
+                buf.flip();
 
                 GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
 

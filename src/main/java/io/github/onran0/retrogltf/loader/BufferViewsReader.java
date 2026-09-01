@@ -32,7 +32,6 @@ class BufferViewsReader {
 
         int oldPos = src.position();
         int oldLimit = src.limit();
-        int oldDstPos = buf.position();
 
         int pos = view.getByteOffset() + offset;
 
@@ -43,6 +42,5 @@ class BufferViewsReader {
 
         src.position(oldPos);
         src.limit(oldLimit);
-        buf.position(oldDstPos);
     }
 }
