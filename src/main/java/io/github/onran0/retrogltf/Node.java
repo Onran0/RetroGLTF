@@ -5,6 +5,7 @@ import org.joml.Matrix4f;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class Node {
     private final String name;
@@ -30,8 +31,8 @@ public class Node {
         this.setParent(parent);
     }
 
-    public String getName() {
-        return this.name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(this.name);
     }
 
     public Material getMaterial(int index) {
@@ -46,8 +47,8 @@ public class Node {
         return this.materials.length;
     }
 
-    public GLMesh getMesh() {
-        return this.mesh;
+    public Optional<GLMesh> getMesh() {
+        return Optional.ofNullable(this.mesh);
     }
 
     public int getFrontFaceMode() {
@@ -71,7 +72,7 @@ public class Node {
         if(parent == null) {
             matrix.set(this.localMatrix);
         } else {
-            matrix.set(parent.matrix);
+            matrix.set(this.parent.matrix);
             matrix.mul(this.localMatrix);
         }
 
