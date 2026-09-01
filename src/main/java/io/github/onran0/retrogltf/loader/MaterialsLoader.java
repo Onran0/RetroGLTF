@@ -2,8 +2,10 @@ package io.github.onran0.retrogltf.loader;
 
 import io.github.onran0.retrogltf.GLTexture;
 import io.github.onran0.retrogltf.Material;
+import io.github.onran0.retrogltf.TextureInfo;
 import io.github.onran0.retrogltf.loader.structure.material.GLTFMaterial;
 import io.github.onran0.retrogltf.loader.structure.material.GLTFPBRMetallicRoughness;
+import io.github.onran0.retrogltf.loader.structure.texture.GLTFTextureInfo;
 
 class MaterialsLoader {
     private MaterialsLoader() { }
@@ -21,14 +23,23 @@ class MaterialsLoader {
                 GLTFPBRMetallicRoughness pbr = material.getPBRMetallicRoughness();
 
                 GLTexture diffuseTexture;
+                int diffuseTexCoordIndex;
 
                 if(pbr.getBaseColorTexture().isPresent()) {
-                    diffuseTexture = textures[pbr.getBaseColorTexture().get().getIndex()];
+                    GLTFTextureInfo texInfo = pbr.getBaseColorTexture().get();
+
+                    diffuseTexture = textures[texInfo.getIndex()];
+                    diffuseTexCoordIndex = texInfo.getIndex() + 1;
+
                 } else {
                     diffuseTexture = GLTexture.MISSING;
+                    diffuseTexCoordIndex = 0;
                 }
 
-                glMaterials[i] = new Material(diffuseTexture, !material.isDoubleSided());
+                glMaterials[i] = new Material(
+                        new TextureInfo(diffuseTexture, diffuseTexCoordIndex),
+                        !material.isDoubleSided()
+                );
             }
         }
 

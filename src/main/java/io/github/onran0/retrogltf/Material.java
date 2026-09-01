@@ -1,10 +1,10 @@
 package io.github.onran0.retrogltf;
 
 public class Material {
-    private GLTexture diffuse;
+    private TextureInfo diffuse;
     private boolean useCulling;
 
-    public Material(GLTexture diffuse, boolean useCulling) {
+    public Material(TextureInfo diffuse, boolean useCulling) {
         if(diffuse == null)
             throw new IllegalArgumentException("diffuse == null");
 
@@ -12,7 +12,7 @@ public class Material {
         this.useCulling = useCulling;
     }
 
-    public GLTexture getDiffuse() {
+    public TextureInfo getDiffuse() {
         return diffuse;
     }
 
