@@ -15,7 +15,7 @@ public class GLTFPBRMetallicRoughness {
     private final GLTFTextureInfo metallicRoughnessTexture;
 
     public GLTFPBRMetallicRoughness(JSONObject json) {
-        this.baseColorFactor = JSONUtil.toVector4(json.getJSONArray("baseColorFactor"), new Vector4f(1.0f));
+        this.baseColorFactor = JSONUtil.toVector4(json.optJSONArray("baseColorFactor"), new Vector4f(1.0f));
 
         this.baseColorTexture = JSONUtil.parseNullableObject(json, "baseColorTexture", GLTFTextureInfo::new);
         this.metallicRoughnessTexture = JSONUtil.parseNullableObject(json, "metallicRoughnessTexture", GLTFTextureInfo::new);

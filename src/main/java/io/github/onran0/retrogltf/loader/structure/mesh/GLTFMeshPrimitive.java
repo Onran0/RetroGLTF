@@ -56,8 +56,8 @@ public class GLTFMeshPrimitive {
             i++;
         }
 
-        this.indices = JSONUtil.getNullableInt(attributes, "indices");
-        this.material = JSONUtil.getNullableInt(attributes, "material");
+        this.indices = JSONUtil.getNullableInt(json, "indices");
+        this.material = JSONUtil.getNullableInt(json, "material");
         this.mode = ElementsType.getById(json.optInt("mode", 4));
     }
 

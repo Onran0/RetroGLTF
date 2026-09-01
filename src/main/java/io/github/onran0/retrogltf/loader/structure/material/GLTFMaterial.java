@@ -31,7 +31,7 @@ public class GLTFMaterial {
         this.emissiveTexture = JSONUtil.parseNullableObject(json, "emissiveTexture", GLTFTextureInfo::new);
 
         this.emissiveFactor = JSONUtil.toVector3(
-                json.getJSONArray("emissiveFactor"),
+                json.optJSONArray("emissiveFactor"),
                 new Vector3f(0.0f, 0.0f, 0.0f)
         );
 
