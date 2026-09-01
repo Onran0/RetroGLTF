@@ -1,13 +1,30 @@
 package io.github.onran0.retrogltf;
 
+import io.github.onran0.retrogltf.loader.GLTFLoadException;
+import io.github.onran0.retrogltf.loader.GLTFLoader;
+import org.json.JSONObject;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public final class RenderTest {
 
-    public static void main(String[] args) throws LWJGLException {
+    public static void main(String[] args) throws LWJGLException, IOException, GLTFLoadException {
+        long start = System.currentTimeMillis();
+
+        Scene scene = new GLTFLoader(new JSONObject(Files.readAllLines(Paths.get("./test.gltf")))).load();
+
+        long end = System.currentTimeMillis();
+
+        System.out.printf(
+                "test.gltf successfully loaded in %dms !%n", end - start
+        );
+
         Display.setDisplayMode(new DisplayMode(800, 600));
 
         Display.setTitle("Test");
