@@ -23,17 +23,17 @@ public class GLTFAsset {
 
         String[] splitVersion = version.split("\\.");
 
-        this.minorVersion = Integer.parseInt(splitVersion[0]);
-        this.majorVersion = Integer.parseInt(splitVersion[1]);
+        this.majorVersion = Integer.parseInt(splitVersion[0]);
+        this.minorVersion = Integer.parseInt(splitVersion[1]);
 
         if(this.minVersion != null) {
             String[] splitMinVersion = minVersion.split("\\.");
 
-            minorMinVersion = Integer.parseInt(splitMinVersion[0]);
-            majorMinVersion = Integer.parseInt(splitMinVersion[1]);
+            majorMinVersion = Integer.parseInt(splitMinVersion[0]);
+            minorMinVersion = Integer.parseInt(splitMinVersion[1]);
         } else {
-            this.minorMinVersion = null;
             this.majorMinVersion = null;
+            this.minorMinVersion = null;
         }
     }
 
@@ -49,23 +49,23 @@ public class GLTFAsset {
         return version;
     }
 
-    public int getMinorVersion() {
-        return minorVersion;
-    }
-
     public int getMajorVersion() {
         return majorVersion;
     }
 
-    public Optional<String> getMinVersion() {
-        return Optional.of(minVersion);
+    public int getMinorVersion() {
+        return minorVersion;
     }
 
-    public int getMinorMinVersion() {
-        return minorMinVersion;
+    public Optional<String> getMinVersion() {
+        return Optional.ofNullable(minVersion);
     }
 
     public int getMajorMinVersion() {
         return majorMinVersion;
+    }
+
+    public int getMinorMinVersion() {
+        return minorMinVersion;
     }
 }
