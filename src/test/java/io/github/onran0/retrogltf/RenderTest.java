@@ -16,6 +16,12 @@ import java.nio.file.Paths;
 public final class RenderTest {
 
     public static void main(String[] args) throws LWJGLException, IOException, GLTFLoadException {
+        Display.setDisplayMode(new DisplayMode(800, 600));
+
+        Display.setTitle("Test");
+
+        Display.create();
+
         System.out.println("Loading glTF...");
 
         long start = System.currentTimeMillis();
@@ -36,12 +42,6 @@ public final class RenderTest {
         System.out.printf(
                 "test.gltf successfully loaded in %dms !%n", end - start
         );
-
-        Display.setDisplayMode(new DisplayMode(800, 600));
-
-        Display.setTitle("Test");
-
-        Display.create();
 
         GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
