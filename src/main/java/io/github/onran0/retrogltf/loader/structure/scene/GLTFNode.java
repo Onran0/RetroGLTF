@@ -36,7 +36,7 @@ public class GLTFNode {
 
         this.translation = JSONUtil.toVector3(json.optJSONArray("translation"), new Vector3f());
         this.rotation = JSONUtil.toQuaternion(json.optJSONArray("rotation"), new Quaternionf());
-        this.scale = JSONUtil.toVector3(json.optJSONArray("translation"), new Vector3f(1f, 1f, 1f));
+        this.scale = JSONUtil.toVector3(json.optJSONArray("scale"), new Vector3f(1f, 1f, 1f));
 
         this.matrix = JSONUtil.toMatrix4(json.optJSONArray("matrix"));
 
