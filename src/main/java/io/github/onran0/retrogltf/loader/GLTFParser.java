@@ -244,6 +244,7 @@ class GLTFParser {
             for(int child : children) {
                 nodeParents[child] = nodeIndex;
                 isNodeChildren[child] = true;
+                parseNode(child);
             }
         });
 

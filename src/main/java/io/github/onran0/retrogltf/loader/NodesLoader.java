@@ -35,7 +35,7 @@ class NodesLoader {
     }
 
     private Matrix4f getNodeGlobalMatrix(int index) {
-        Matrix4f localMatrix = nodes[index].getLocalMatrix();
+        Matrix4f localMatrix = this.nodes[index].getLocalMatrix();
 
         if(!this.isNodeChildren[index]) {
             return new Matrix4f(localMatrix);
