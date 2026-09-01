@@ -17,6 +17,9 @@ class NodesLoader {
     private final IntermediateMesh[] meshes;
     private final Material[] materials;
 
+    private final boolean[] isNodeChildren;
+    private final int[] nodeParents;
+
     public NodesLoader(
             GLTFParser parser, GLTFNode[] nodes,
             IntermediateMesh[] meshes, Material[] materials
@@ -26,72 +29,72 @@ class NodesLoader {
 
         this.meshes = meshes;
         this.materials = materials;
+
+        this.isNodeChildren = parser.isNodeChildrenTruthTable();
+        this.nodeParents = parser.getNodeParentsTable();
     }
 
     private Matrix4f getNodeGlobalMatrix(int index) {
         Matrix4f localMatrix = nodes[index].getLocalMatrix();
 
-        if(!parser.isNodeChildrenTruthTable()[index]) {
+        if(!this.isNodeChildren[index]) {
             return new Matrix4f(localMatrix);
         } else {
-            return getNodeGlobalMatrix(parser.getNodeParentsTable()[index]).mul(localMatrix);
+            return getNodeGlobalMatrix(this.nodeParents[index]).mul(localMatrix);
         }
     }
 
     private Node loadNode(int index, Node parent) {
         GLTFNode node = this.nodes[index];
 
-        if(node != null) {
-            int meshFrontFaceMode = getNodeGlobalMatrix(index).determinant() >= 0 ? GL11.GL_CW : GL11.GL_CCW;
+        int meshFrontFaceMode = getNodeGlobalMatrix(index).determinant() >= 0 ? GL11.GL_CW : GL11.GL_CCW;
 
-            IntermediateMesh mesh;
-            Material[] materials;
+        IntermediateMesh mesh;
+        Material[] materials;
 
-            if(node.getMesh().isPresent()) {
-                mesh = this.meshes[node.getMesh().get()];
+        if(node.getMesh().isPresent()) {
+            mesh = this.meshes[node.getMesh().get()];
 
-                Map<Integer, Integer> globalMaterialIndexToLocalMap = mesh.getGlobalMaterialIndexToLocalMap();
+            Map<Integer, Integer> globalMaterialIndexToLocalMap = mesh.getGlobalMaterialIndexToLocalMap();
 
-                materials = new Material[globalMaterialIndexToLocalMap.size()];
+            materials = new Material[globalMaterialIndexToLocalMap.size()];
 
-                for(int globalMaterialIndex : globalMaterialIndexToLocalMap.keySet()) {
-                    int localMaterialIndex = globalMaterialIndexToLocalMap.get(globalMaterialIndex);
+            for(int globalMaterialIndex : globalMaterialIndexToLocalMap.keySet()) {
+                int localMaterialIndex = globalMaterialIndexToLocalMap.get(globalMaterialIndex);
 
-                    materials[localMaterialIndex] = this.materials[globalMaterialIndex];
-                }
-            } else {
-                mesh = null;
-                materials = new Material[0];
+                materials[localMaterialIndex] = this.materials[globalMaterialIndex];
             }
+        } else {
+            mesh = null;
+            materials = new Material[0];
+        }
 
-            Node outputNode = new Node(
-                    node.getName().orElse(""),
-                    mesh != null ? mesh.getGLMesh() : null, meshFrontFaceMode, materials,
-                    node.getLocalMatrix(),
-                    parent
-            );
+        Node outputNode = new Node(
+                node.getName().orElse(""),
+                mesh != null ? mesh.getGLMesh() : null, meshFrontFaceMode, materials,
+                node.getLocalMatrix(),
+                parent
+        );
 
-            if(node.getChildren().isPresent()) {
-                for (int child : node.getChildren().get()) {
-                    loadNode(child, outputNode);
-                }
+        if(node.getChildren().isPresent()) {
+            for (int child : node.getChildren().get()) {
+                loadNode(child, outputNode);
             }
+        }
 
-            return outputNode;
-        } else return null;
+        return outputNode;
     }
 
     public List<Node> loadNodes() {
         List<Node> outputNodes = new ArrayList<>();
 
         for(int i = 0;i < this.nodes.length;i++) {
-            if(!this.parser.isNodeChildrenTruthTable()[i]) {
+            if(!this.parser.isNodeChildrenTruthTable()[i] && this.nodes[i] != null) {
                 Node node = loadNode(i, null);
 
-                if(node != null) {
-                    node.updateGlobalMatrix();
-                    outputNodes.add(node);
-                }
+                node.updateGlobalMatrix();
+
+                outputNodes.add(node);
             }
         }
 

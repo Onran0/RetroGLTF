@@ -14,12 +14,6 @@ import java.nio.ByteBuffer;
 class TexturesLoader {
     private static final BufferedImage MISSING_TEX = new BufferedImage(2, 2, BufferedImage.TYPE_INT_ARGB);
 
-    private final GLTFTexture[] textures;
-    private final GLTFTextureSampler[] samplers;
-    private final BufferedImage[] images;
-
-    private final ByteBuffer fastBuf = ByteBuffer.allocateDirect(1024 * 1024 * 4);
-
     static {
         int purple = 0xF403FCFF;
 
@@ -27,23 +21,24 @@ class TexturesLoader {
         MISSING_TEX.setRGB(1, 1, purple);
     }
 
-    public TexturesLoader(GLTFTexture[] textures, GLTFTextureSampler[] samplers, BufferedImage[] images) {
-        this.textures = textures;
-        this.samplers = samplers;
-        this.images = images;
-    }
+    private TexturesLoader() { }
 
-    public GLTexture[] loadTextures() {
-        GLTexture[] glTextures = new GLTexture[this.textures.length];
+    public static GLTexture[] loadTextures(LoadContext context, BufferedImage[] images) {
+        GLTFTexture[] textures = context.getParser().getTextures();
+        GLTFTextureSampler[] samplers = context.getParser().getTextureSamplers();
 
-        for(int i = 0; i < this.textures.length; i++) {
-            GLTFTexture texture = this.textures[i];
+        ByteBuffer fastBuf = context.getFastBuffer();
+
+        GLTexture[] glTextures = new GLTexture[textures.length];
+
+        for(int i = 0; i < textures.length; i++) {
+            GLTFTexture texture = textures[i];
 
             if(texture != null) {
                 BufferedImage sourceImg;
 
                 if(texture.getSource().isPresent()) {
-                    sourceImg = this.images[texture.getSource().get()];
+                    sourceImg = images[texture.getSource().get()];
                 } else {
                     sourceImg = MISSING_TEX;
                 }
@@ -55,7 +50,7 @@ class TexturesLoader {
                 TextureWrapMode wrapT;
 
                 if(texture.getSampler().isPresent()) {
-                    GLTFTextureSampler sampler = this.samplers[texture.getSampler().get()];
+                    GLTFTextureSampler sampler = samplers[texture.getSampler().get()];
 
                     magFilter = sampler.getMagFilter().orElse(TextureMagFilter.LINEAR);
                     minFilter = sampler.getMinFilter().orElse(TextureMinFilter.LINEAR_MIPMAP_LINEAR);

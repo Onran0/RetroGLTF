@@ -38,60 +38,43 @@ public class GLTFLoader {
         this.parser = new GLTFParser(root, dir);
     }
 
-    public Scene load() throws GLTFLoadException {
-        this.parser.parse();
-
+    private LoadContext getLoadContext() {
         GLTFBufferView[] views = this.parser.getViews();
         GLTFAccessor[] accessors = this.parser.getAccessors();
-        GLTFMesh[] meshes = this.parser.getMeshes();
 
         BufferViewsReader viewsReader = new BufferViewsReader(
                 this.parser.getBuffers(),
                 views
         );
 
+        LoadContext loadContext = new LoadContext();
+
+        loadContext.setParser(this.parser);
+
+        loadContext.setViewsReader(viewsReader);
+
         AccessorsReader accessorsReader = new AccessorsReader(
                 accessors,
                 views,
-                viewsReader
-        );
-
-        MeshLoader meshLoader = new MeshLoader(
                 viewsReader,
-                accessorsReader,
-                views,
-                accessors,
-                meshes
+                loadContext.getFastBuffer()
         );
 
-        IntermediateMesh[] loadedMeshes = new IntermediateMesh[meshes.length];
+        loadContext.setAccessorsReader(accessorsReader);
 
-        for(int i = 0;i < meshes.length;i++) {
-            if(meshes[i] != null) {
-                loadedMeshes[i] = meshLoader.loadMesh(i);
-            }
-        }
+        return loadContext;
+    }
 
-        ImagesLoader imagesLoader = new ImagesLoader(
-                this.parser,
-                viewsReader,
-                this.parser.getImages()
-        );
+    public Scene load() throws GLTFLoadException {
+        this.parser.parse();
 
-        TexturesLoader texturesLoader = new TexturesLoader(
-                this.parser.getTextures(),
-                this.parser.getTextureSamplers(),
-                imagesLoader.loadImages()
-        );
+        LoadContext loadContext = getLoadContext();
 
-        GLTexture[] textures = texturesLoader.loadTextures();
+        IntermediateMesh[] loadedMeshes = MeshLoader.loadMeshes(loadContext);
 
-        MaterialsLoader materialsLoader = new MaterialsLoader(
-                this.parser.getMaterials(),
-                textures
-        );
+        GLTexture[] textures = TexturesLoader.loadTextures(loadContext, ImagesLoader.loadImages(loadContext));
 
-        Material[] materials = materialsLoader.loadMaterials();
+        Material[] materials = MaterialsLoader.loadMaterials(loadContext, textures);
 
         NodesLoader nodesLoader = new NodesLoader(
                 this.parser,

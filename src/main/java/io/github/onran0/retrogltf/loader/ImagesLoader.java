@@ -10,19 +10,15 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 class ImagesLoader {
-    private final GLTFParser gltfParser;
-    private final BufferViewsReader viewsReader;
-    private final GLTFImage[] images;
+    private ImagesLoader() { }
 
-    private final ByteBuffer fastBuf = ByteBuffer.allocateDirect(1024 * 1024);
+    public static BufferedImage[] loadImages(LoadContext context) throws GLTFLoadException {
+        BufferViewsReader viewsReader = context.getViewsReader();
+        GLTFParser parser = context.getParser();
+        GLTFImage[] images = context.getParser().getImages();
 
-    public ImagesLoader(GLTFParser gltfParser, BufferViewsReader viewsReader, GLTFImage[] images) {
-        this.gltfParser = gltfParser;
-        this.viewsReader = viewsReader;
-        this.images = images;
-    }
+        ByteBuffer fastBuf = context.getFastBuffer();
 
-    public BufferedImage[] loadImages() throws GLTFLoadException {
         BufferedImage[] loadedImages = new BufferedImage[images.length];
 
         for(int i = 0; i < images.length; i++) {
@@ -40,7 +36,7 @@ class ImagesLoader {
                     viewsReader.get(imgBuf, view, 0, len);
                 } else if(image.getURI().isPresent()) {
                     try {
-                        imgBuf = this.gltfParser.getBuffer(image.getURI().get(), -1);
+                        imgBuf = parser.getBuffer(image.getURI().get(), -1);
                     } catch (IOException e) {
                         throw new GLTFLoadException(e);
                     }

@@ -3,6 +3,7 @@ package io.github.onran0.retrogltf.loader;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFBufferView;
 
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
 class BufferViewsReader {
     private final ByteBuffer[] buffers;
@@ -15,6 +16,10 @@ class BufferViewsReader {
 
     public int getViewLength(int id) {
         return views[id].getByteLength();
+    }
+
+    public Optional<Integer> getByteStride(int id) {
+        return views[id].getByteStride();
     }
 
     public void get(ByteBuffer buf, int id, int offset) {

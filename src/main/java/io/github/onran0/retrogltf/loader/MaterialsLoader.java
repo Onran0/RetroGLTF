@@ -6,19 +6,15 @@ import io.github.onran0.retrogltf.loader.structure.material.GLTFMaterial;
 import io.github.onran0.retrogltf.loader.structure.material.GLTFPBRMetallicRoughness;
 
 class MaterialsLoader {
-    private GLTFMaterial[] materials;
-    private GLTexture[] textures;
+    private MaterialsLoader() { }
 
-    public MaterialsLoader(GLTFMaterial[] materials, GLTexture[] textures) {
-        this.materials = materials;
-        this.textures = textures;
-    }
+    public static Material[] loadMaterials(LoadContext context, GLTexture[] textures) {
+        GLTFMaterial[] materials = context.getParser().getMaterials();
 
-    public Material[] loadMaterials() {
-        Material[] glMaterials = new Material[this.materials.length];
+        Material[] glMaterials = new Material[materials.length];
 
-        for(int i = 0; i < this.materials.length; i++) {
-            GLTFMaterial material = this.materials[i];
+        for(int i = 0; i < materials.length; i++) {
+            GLTFMaterial material = materials[i];
 
             // TODO: fully PBR support
             if(material != null) {
@@ -27,7 +23,7 @@ class MaterialsLoader {
                 GLTexture diffuseTexture;
 
                 if(pbr.getBaseColorTexture().isPresent()) {
-                    diffuseTexture = this.textures[pbr.getBaseColorTexture().get().getIndex()];
+                    diffuseTexture = textures[pbr.getBaseColorTexture().get().getIndex()];
                 } else {
                     diffuseTexture = GLTexture.MISSING;
                 }

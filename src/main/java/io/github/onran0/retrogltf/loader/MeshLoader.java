@@ -17,50 +17,35 @@ import java.util.Map;
 
 class MeshLoader {
 
-    private final BufferViewsReader viewsReader;
-    private final AccessorsReader accessorsReader;
-    private final GLTFBufferView[] views;
-    private final GLTFAccessor[] accessors;
-    private final GLTFMesh[] meshes;
+    private MeshLoader() { }
 
-    private final ByteBuffer fastBuf = ByteBuffer.allocateDirect(1024 * 1024);
-
-    public MeshLoader(
-            BufferViewsReader viewsReader, AccessorsReader accessorsReader,
-            GLTFBufferView[] views, GLTFAccessor[] accessors,
-            GLTFMesh[] meshes
-    ) {
-        this.viewsReader = viewsReader;
-        this.accessorsReader = accessorsReader;
-
-        this.views = views;
-        this.accessors = accessors;
-
-        this.meshes = meshes;
-    }
-
-    private void checkAttributesCompat(GLTFMeshPrimitive.Attribute[] attributes) throws GLTFLoadException {
+    private static void checkAttributesCompat(GLTFMeshPrimitive.Attribute[] attributes) throws GLTFLoadException {
         for(GLTFMeshPrimitive.Attribute attribute : attributes) {
             if(attribute.getRegularType() == null)
                 throw new GLTFLoadException("unsupported attribute type: " + attribute.getType());
         }
     }
 
-    private ByteBuffer getInterleavedAttributesBuffer(GLTFMeshPrimitive.Attribute[] attributes) {
+    private static ByteBuffer getInterleavedAttributesBuffer(
+            BufferViewsReader viewsReader, AccessorsReader accessorsReader,
+            GLTFBufferView[] views, GLTFAccessor[] accessors,
+            ByteBuffer fastBuf,
+            GLTFMeshPrimitive.Attribute[] attributes
+    ) {
         int prevAttribBufferView = -1;
 
         int minPosInView = Integer.MAX_VALUE;
         int maxPosInView = Integer.MIN_VALUE;
 
         for (GLTFMeshPrimitive.Attribute attribute : attributes) {
-            GLTFAccessor attribAccessor = this.accessors[attribute.getAccessor()];
+            GLTFAccessor attribAccessor = accessors[attribute.getAccessor()];
 
             if (attribAccessor.getBufferView().isPresent()) {
                 int bufferView = attribAccessor.getBufferView().get();
 
                 if (
                         prevAttribBufferView != -1 && prevAttribBufferView != bufferView ||
-                                !this.views[bufferView].getByteStride().isPresent()
+                                !views[bufferView].getByteStride().isPresent()
                 ) {
                     return null;
                 }
@@ -91,8 +76,14 @@ class MeshLoader {
         return buf;
     }
 
-    public IntermediateMesh loadMesh(int id) throws GLTFLoadException {
-        GLTFMesh mesh = this.meshes[id];
+    private static IntermediateMesh loadMesh(LoadContext context, GLTFMesh mesh) throws GLTFLoadException {
+        BufferViewsReader viewsReader = context.getViewsReader();
+        AccessorsReader accessorsReader = context.getAccessorsReader();
+
+        GLTFBufferView[] views = context.getParser().getViews();
+        GLTFAccessor[] accessors = context.getParser().getAccessors();
+
+        ByteBuffer fastBuf = context.getFastBuffer();
 
         GLTFMeshPrimitive[] primitives = mesh.getPrimitives();
 
@@ -106,7 +97,12 @@ class MeshLoader {
 
             checkAttributesCompat(attributes);
 
-            ByteBuffer interleavedBuf = getInterleavedAttributesBuffer(attributes);
+            ByteBuffer interleavedBuf = getInterleavedAttributesBuffer(
+                    viewsReader, accessorsReader,
+                    views, accessors,
+                    fastBuf,
+                    attributes
+            );
 
             int vao;
             int vbo;
@@ -135,9 +131,9 @@ class MeshLoader {
                 for(int j = 0;j < attributes.length;j++) {
                     GLTFMeshPrimitive.Attribute attribute = attributes[j];
 
-                    GLTFAccessor accessor = this.accessors[attribute.getAccessor()];
+                    GLTFAccessor accessor = accessors[attribute.getAccessor()];
 
-                    int stride = this.views[accessor.getBufferView().get()].getByteStride().get();
+                    int stride = views[accessor.getBufferView().get()].getByteStride().get();
 
                     GL20.glVertexAttribPointer(
                             j, accessor.getType().getNumberOfComponents(),
@@ -153,15 +149,15 @@ class MeshLoader {
                 if(primitive.getIndices().isPresent()) {
                     int indicesAccessorId = primitive.getIndices().get();
 
-                    GLTFAccessor indicesAccessor = this.accessors[indicesAccessorId];
+                    GLTFAccessor indicesAccessor = accessors[indicesAccessorId];
 
                     eboIndicesType = indicesAccessor.getComponentType().getGLType();
 
-                    int len = this.accessorsReader.getLengthInBytes(indicesAccessor);
+                    int len = accessorsReader.getLengthInBytes(indicesAccessor);
 
                     ByteBuffer buf = IOUtil.getFastOrDirectAlloc(fastBuf, len);
 
-                    this.accessorsReader.getBytes(indicesAccessorId, buf);
+                    accessorsReader.getBytes(indicesAccessorId, buf);
 
                     GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
 
@@ -202,5 +198,21 @@ class MeshLoader {
         }
 
         return new IntermediateMesh(new GLMesh(glPrimitives), globalMaterialIndexToLocalMap);
+    }
+
+    public static IntermediateMesh[] loadMeshes(LoadContext context) throws GLTFLoadException {
+        GLTFMesh[] meshes = context.getParser().getMeshes();
+
+        IntermediateMesh[] loadedMeshes = new IntermediateMesh[meshes.length];
+
+        for(int i = 0;i < meshes.length;i++) {
+            GLTFMesh mesh = meshes[i];
+
+            if(mesh != null) {
+                loadedMeshes[i] = loadMesh(context, mesh);
+            }
+        }
+
+        return loadedMeshes;
     }
 }
