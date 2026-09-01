@@ -104,75 +104,110 @@ class MeshLoader {
                     attributes
             );
 
-            int vao;
-            int vbo;
-            int ebo;
-            int eboIndicesType;
-            int elementsType;
+            int vao = GL30.glGenVertexArrays();
+            int vbo = GL15.glGenBuffers();
+            int ebo = primitive.getIndices().isPresent() ? GL15.glGenBuffers() : -1;
+            int eboIndicesType = -1;
+            int elementsType = primitive.getMode().getGLType();
+
+            GL30.glBindVertexArray(vao);
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
 
             if(interleavedBuf != null) {
-                elementsType = primitive.getMode().getGLType();
-
-                vao = GL30.glGenVertexArrays();
-                vbo = GL15.glGenBuffers();
-                ebo = primitive.getIndices().isPresent() ? GL15.glGenBuffers() : -1;
-                eboIndicesType = -1;
-
-                GL30.glBindVertexArray(vao);
-
-                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
-
                 GL15.glBufferData(
                         GL15.GL_ARRAY_BUFFER,
                         interleavedBuf,
                         GL15.GL_STATIC_DRAW
                 );
 
-                for(int j = 0;j < attributes.length;j++) {
-                    GLTFMeshPrimitive.Attribute attribute = attributes[j];
-
+                for (GLTFMeshPrimitive.Attribute attribute : attributes) {
                     GLTFAccessor accessor = accessors[attribute.getAccessor()];
 
+                    int loc = attribute.getRegularType().getShaderLocation();
                     int stride = views[accessor.getBufferView().get()].getByteStride().get();
 
                     GL20.glVertexAttribPointer(
-                            j, accessor.getType().getNumberOfComponents(),
+                            loc,
+                            accessor.getType().getNumberOfComponents(),
                             accessor.getComponentType().getGLType(),
                             accessor.isNormalized(),
                             stride,
                             accessor.getByteOffset()
                     );
 
-                    GL20.glEnableVertexAttribArray(j);
+                    GL20.glEnableVertexAttribArray(loc);
+                }
+            } else {
+                int requiredBufLength = 0;
+
+                for (GLTFMeshPrimitive.Attribute attribute : attributes) {
+                    requiredBufLength += accessorsReader.getLengthInBytes(attribute.getAccessor());
                 }
 
-                if(primitive.getIndices().isPresent()) {
-                    int indicesAccessorId = primitive.getIndices().get();
+                ByteBuffer buf = IOUtil.getFastOrDirectAlloc(fastBuf, requiredBufLength);
 
-                    GLTFAccessor indicesAccessor = accessors[indicesAccessorId];
+                for (GLTFMeshPrimitive.Attribute attribute : attributes) {
+                    accessorsReader.getBytes(attribute.getAccessor(), buf);
+                }
 
-                    eboIndicesType = indicesAccessor.getComponentType().getGLType();
+                GL15.glBufferData(
+                        GL15.GL_ARRAY_BUFFER,
+                        buf,
+                        GL15.GL_STATIC_DRAW
+                );
 
-                    int len = accessorsReader.getLengthInBytes(indicesAccessor);
+                int offset = 0;
 
-                    ByteBuffer buf = IOUtil.getFastOrDirectAlloc(fastBuf, len);
+                for (GLTFMeshPrimitive.Attribute attribute : attributes) {
+                    GLTFAccessor accessor = accessors[attribute.getAccessor()];
 
-                    accessorsReader.getBytes(indicesAccessorId, buf);
+                    int loc = attribute.getRegularType().getShaderLocation();
 
-                    GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
-
-                    GL15.glBufferData(
-                            GL15.GL_ELEMENT_ARRAY_BUFFER,
-                            buf,
-                            GL15.GL_STATIC_DRAW
+                    GL20.glVertexAttribPointer(
+                            loc,
+                            accessor.getType().getNumberOfComponents(),
+                            accessor.getComponentType().getGLType(),
+                            accessor.isNormalized(),
+                            0,
+                            offset
                     );
+
+                    GL20.glEnableVertexAttribArray(loc);
+
+                    offset += accessorsReader.getLengthInBytes(attribute.getAccessor());
                 }
+            }
 
-                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-                GL30.glBindVertexArray(0);
+            if(primitive.getIndices().isPresent()) {
+                int indicesAccessorId = primitive.getIndices().get();
 
-                // TODO: support of loading any meshes
-            } else throw new GLTFLoadException("not interleaved packed mesh primitive attributes is not supported");
+                GLTFAccessor indicesAccessor = accessors[indicesAccessorId];
+
+                eboIndicesType = indicesAccessor.getComponentType().getGLType();
+
+                int len = accessorsReader.getLengthInBytes(indicesAccessor);
+
+                ByteBuffer buf = IOUtil.getFastOrDirectAlloc(fastBuf, len);
+
+                buf.mark();
+
+                accessorsReader.getBytes(indicesAccessorId, buf);
+
+                buf.reset();
+
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
+
+                GL15.glBufferData(
+                        GL15.GL_ELEMENT_ARRAY_BUFFER,
+                        buf,
+                        GL15.GL_STATIC_DRAW
+                );
+
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+            }
+
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+            GL30.glBindVertexArray(0);
 
             int localMaterialIndex = -1;
 
