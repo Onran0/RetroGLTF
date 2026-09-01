@@ -59,7 +59,7 @@ class TexturesLoader {
                     wrapT = sampler.getWrapT();
                 } else {
                     magFilter = TextureMagFilter.LINEAR;
-                    minFilter = TextureMinFilter.LINEAR_MIPMAP_LINEAR;
+                    minFilter = TextureMinFilter.LINEAR;
 
                     wrapS = TextureWrapMode.REPEAT;
                     wrapT = TextureWrapMode.REPEAT;
@@ -68,13 +68,18 @@ class TexturesLoader {
                 int width = sourceImg.getWidth();
                 int height = sourceImg.getHeight();
 
-                int pixelsLength = width * height * 4;
+                int[] rgbArray = new int[width * height];
 
+                sourceImg.getRGB(0, 0, width, height, rgbArray, 0, width);
+
+                int pixelsLength = width * height * 4;
                 ByteBuffer pixels = IOUtil.getFastOrDirectAlloc(fastBuf, pixelsLength);
 
                 for (int y = 0; y < height; y++) {
+                    int rowOffset = y * width;
+
                     for (int x = 0; x < width; x++) {
-                        int color = sourceImg.getRGB(x, y);
+                        int color = rgbArray[rowOffset + x];
 
                         pixels.put((byte) ((color >> 16) & 0xFF)); // R
                         pixels.put((byte) ((color >> 8) & 0xFF));  // G
@@ -115,11 +120,11 @@ class TexturesLoader {
 
                 GL11.glTexImage2D(
                         GL11.GL_TEXTURE_2D, 0,
-                        GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA,
+                        GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA,
                         GL11.GL_UNSIGNED_BYTE, pixels
                 );
 
-                GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+                //GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
 
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 

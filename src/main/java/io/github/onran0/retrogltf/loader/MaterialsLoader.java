@@ -29,8 +29,7 @@ class MaterialsLoader {
                     GLTFTextureInfo texInfo = pbr.getBaseColorTexture().get();
 
                     diffuseTexture = textures[texInfo.getIndex()];
-                    diffuseTexCoordIndex = texInfo.getIndex() + 1;
-
+                    diffuseTexCoordIndex = texInfo.getIndex();
                 } else {
                     diffuseTexture = GLTexture.MISSING;
                     diffuseTexCoordIndex = 0;

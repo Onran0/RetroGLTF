@@ -67,7 +67,6 @@ public class NodeRenderer {
         GL20.glUniformMatrix4(this.uMatrixLoc, false, matrixBuffer);
 
         GL11.glFrontFace(node.getFrontFaceMode());
-        GL11.glDisable(GL11.GL_CULL_FACE);
 
         for(GLMeshPrimitive primitive : node.getMesh().get().getPrimitives()) {
             if(primitive.getMaterialIndex() != -1) {
