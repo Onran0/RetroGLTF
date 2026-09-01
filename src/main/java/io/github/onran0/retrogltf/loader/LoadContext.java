@@ -1,9 +1,11 @@
 package io.github.onran0.retrogltf.loader;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 class LoadContext {
-    private final ByteBuffer fastBuffer = ByteBuffer.allocateDirect(1024 * 1024 * 4); // 4 MB
+    private final ByteBuffer fastBuffer = ByteBuffer.allocateDirect(1024 * 1024 * 4)  // 4 MB
+            .order(ByteOrder.nativeOrder());
 
     private BufferViewsReader viewsReader;
     private AccessorsReader accessorsReader;

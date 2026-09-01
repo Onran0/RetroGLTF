@@ -3,6 +3,7 @@ package io.github.onran0.retrogltf.loader.util;
 import java.io.IOException;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 
 import java.util.Arrays;
@@ -41,7 +42,7 @@ public class IOUtil {
         if(toRead > Integer.MAX_VALUE)
             throw new IOException("required buffer length is bigger than Integer.MAX_VALUE");
 
-        ByteBuffer buffer = ByteBuffer.allocate((int) toRead);
+        ByteBuffer buffer = ByteBuffer.allocate((int) toRead).order(ByteOrder.nativeOrder());
 
         channel.read(buffer);
 
@@ -58,7 +59,7 @@ public class IOUtil {
             fastBuf.limit(requiredLen);
             return fastBuf;
         } else {
-            return ByteBuffer.allocateDirect(requiredLen);
+            return ByteBuffer.allocateDirect(requiredLen).order(ByteOrder.nativeOrder());
         }
     }
 
@@ -68,7 +69,7 @@ public class IOUtil {
             fastBuf.limit(requiredLen);
             return fastBuf;
         } else {
-            return ByteBuffer.allocate(requiredLen);
+            return ByteBuffer.allocate(requiredLen).order(ByteOrder.nativeOrder());
         }
     }
 
