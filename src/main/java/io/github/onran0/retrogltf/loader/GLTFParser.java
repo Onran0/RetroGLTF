@@ -108,7 +108,7 @@ class GLTFParser {
 
         if(uri.startsWith("data:")) {
             return ByteBuffer.wrap(
-                    Base64.getDecoder().decode(uri.substring( uri.indexOf(";base64,") + 9))
+                    Base64.getDecoder().decode(srcUri.substring( srcUri.indexOf(";base64,") + 8))
             );
         } else {
             int colon = uri.indexOf("/");
