@@ -144,6 +144,7 @@ class AccessorsReader {
 
         int srcPos = buf.position();
         int lengthInBytes = getLengthInBytes(id);
+        int endPos = srcPos + lengthInBytes;
 
         if(accessor.getBufferView().isPresent()) {
             viewsReader.get(
@@ -152,13 +153,15 @@ class AccessorsReader {
                     accessor.getByteOffset(),
                     lengthInBytes
             );
-
-            buf.position(srcPos);
         } else {
             IOUtil.fillBufferWithZeros(buf, lengthInBytes);
+
+            buf.position(endPos);
         }
 
         if(accessor.getSparse().isPresent()) {
+            buf.position(srcPos);
+
             GLTFSparseAccessor sparseAccessor = accessor.getSparse().get();
 
             int requiredCapacityForSparseValues = accessor.getElementSize() * sparseAccessor.getCount();
@@ -194,7 +197,7 @@ class AccessorsReader {
             sparseValuesBuffer.position(0);
             sparseValuesBuffer.limit(prevSparseBufLimit);
 
-            buf.position(srcPos);
+            buf.position(endPos);
         }
     }
 
