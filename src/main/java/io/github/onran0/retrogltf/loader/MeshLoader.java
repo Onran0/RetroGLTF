@@ -106,10 +106,13 @@ class MeshLoader {
 
             int vao = GL30.glGenVertexArrays();
             int vbo = GL15.glGenBuffers();
+
             int ebo = primitive.getIndices().isPresent() ? GL15.glGenBuffers() : -1;
             int eboIndicesType = -1;
+
             int elementsType = primitive.getMode().getGLType();
             int verticesCount = 0;
+            int indicesCount = -1;
 
             GL30.glBindVertexArray(vao);
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
@@ -188,6 +191,8 @@ class MeshLoader {
 
                 GLTFAccessor indicesAccessor = accessors[indicesAccessorId];
 
+                indicesCount = indicesAccessor.getCount();
+
                 eboIndicesType = indicesAccessor.getComponentType().getGLType();
 
                 int len = accessorsReader.getLengthInBytes(indicesAccessor);
@@ -234,7 +239,7 @@ class MeshLoader {
             glPrimitives[i] = new GLMeshPrimitive(
                     vao, vbo,
                     ebo, eboIndicesType,
-                    elementsType, verticesCount,
+                    elementsType, verticesCount, indicesCount,
                     localMaterialIndex
             );
         }
