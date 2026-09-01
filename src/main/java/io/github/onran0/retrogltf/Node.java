@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class Node {
     private final String name;
@@ -79,6 +80,32 @@ public class Node {
         for(Node child : children) {
             child.updateGlobalMatrix();
         }
+    }
+
+    public Node findInDirectChildren(Predicate<Node> filter) {
+        for(Node child : children) {
+            if(filter.test(child)) {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    public Node findInChildren(Predicate<Node> filter) {
+        Node res = findInDirectChildren(filter);
+
+        if(res == null) {
+            for(Node child : children) {
+                res = child.findInChildren(filter);
+
+                if(res != null) {
+                    return res;
+                }
+            }
+
+            return null;
+        } else return res;
     }
 
     public List<Node> getChildren() {

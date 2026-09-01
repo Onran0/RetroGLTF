@@ -5,7 +5,6 @@ import io.github.onran0.retrogltf.loader.GLTFLoader;
 import io.github.onran0.retrogltf.render.SceneRenderer;
 import org.joml.Matrix4f;
 import org.json.JSONObject;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -14,7 +13,6 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
-import java.nio.FloatBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -72,6 +70,18 @@ public final class RenderTest {
                 "test.gltf successfully loaded in %dms !%n", end - start
         );
 
+        Node headNode = scene.findNodeByName("head");
+        Node rightArmNode = scene.findNodeByName("right_arm");
+        Node leftArmNode = scene.findNodeByName("left_arm");
+
+        Matrix4f headNodeDefaultMat = new Matrix4f();
+        Matrix4f rightArmNodeDefaultMat = new Matrix4f();
+        Matrix4f leftArmNodeDefaultMat = new Matrix4f();
+
+        headNode.getLocalMatrix(headNodeDefaultMat);
+        rightArmNode.getLocalMatrix(rightArmNodeDefaultMat);
+        leftArmNode.getLocalMatrix(leftArmNodeDefaultMat);
+
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         float fov = 60.0f, aspect = 800f/600f, near = 0.1f, far = 100.0f;
         float fh = (float) Math.tan(Math.toRadians(fov / 2)) * near;
@@ -83,6 +93,8 @@ public final class RenderTest {
         SceneRenderer sceneRenderer = new SceneRenderer();
 
         float x = 5, y = 5, z = 5, pitch = 38, yaw = 315;
+
+        float time = 0.0f;
 
         while (!Display.isCloseRequested()) {
             if(input) {
@@ -108,9 +120,28 @@ public final class RenderTest {
             GL11.glRotatef(yaw, 0, 1, 0);
             GL11.glTranslatef(-x, -y, -z);
 
-            renderCube();
+            //renderCube();
+
+            Matrix4f tmpMat = new Matrix4f();
+
+            tmpMat.set(headNodeDefaultMat);
+            tmpMat.rotate((float) Math.toRadians(Math.sin(time) * 35.0D), 0, 0, 1);
+
+            headNode.setLocalMatrix(tmpMat);
+
+            tmpMat.set(leftArmNodeDefaultMat);
+            tmpMat.rotate((float) Math.toRadians(Math.sin(time) * 60.0D), 1, 0, 0);
+
+            leftArmNode.setLocalMatrix(tmpMat);
+
+            tmpMat.set(rightArmNodeDefaultMat);
+            tmpMat.rotate((float) Math.toRadians(Math.sin(time) * -60.0D), 1, 0, 0);
+
+            rightArmNode.setLocalMatrix(tmpMat);
 
             sceneRenderer.render(scene);
+
+            time += 1/60f * 2.5f;
 
             Display.update();
 
