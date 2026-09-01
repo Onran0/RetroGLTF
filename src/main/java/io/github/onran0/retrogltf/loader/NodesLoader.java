@@ -70,7 +70,7 @@ class NodesLoader {
         }
 
         Node outputNode = new Node(
-                node.getName().orElse(""),
+                node.getName().get(),
                 mesh != null ? mesh.getGLMesh() : null, meshFrontFaceMode, materials,
                 node.getLocalMatrix(),
                 parent
