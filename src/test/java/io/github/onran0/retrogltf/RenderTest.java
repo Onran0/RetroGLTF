@@ -5,6 +5,7 @@ import io.github.onran0.retrogltf.loader.GLTFLoader;
 import io.github.onran0.retrogltf.loader.Profiler;
 import io.github.onran0.retrogltf.render.SceneRenderer;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.json.JSONObject;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.SQLOutput;
 
 public final class RenderTest {
 
@@ -71,13 +73,13 @@ public final class RenderTest {
         Node rightArmNode = scene.findNodeByName("right_arm");
         Node leftArmNode = scene.findNodeByName("left_arm");
 
-        Matrix4f headNodeDefaultMat = new Matrix4f();
-        Matrix4f rightArmNodeDefaultMat = new Matrix4f();
-        Matrix4f leftArmNodeDefaultMat = new Matrix4f();
+        Vector3f headNodeEuler = new Vector3f();
+        Vector3f rightArmNodeEuler = new Vector3f();
+        Vector3f leftArmNodeEuler = new Vector3f();
 
-        headNode.getLocalMatrix(headNodeDefaultMat);
-        rightArmNode.getLocalMatrix(rightArmNodeDefaultMat);
-        leftArmNode.getLocalMatrix(leftArmNodeDefaultMat);
+        headNode.getEulerAngles(headNodeEuler);
+        rightArmNode.getEulerAngles(rightArmNodeEuler);
+        leftArmNode.getEulerAngles(leftArmNodeEuler);
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         float fov = 60.0f, aspect = 800f/600f, near = 0.1f, far = 100.0f;
@@ -119,22 +121,13 @@ public final class RenderTest {
 
             //renderCube();
 
-            Matrix4f tmpMat = new Matrix4f();
+            headNodeEuler.set(0, 0, (float) Math.toRadians(Math.sin(time) * 35.0D));
+            rightArmNodeEuler.set((float) Math.toRadians(Math.sin(time) * -60.0D), 0, 0);
+            leftArmNodeEuler.set((float) Math.toRadians(Math.sin(time) * 60.0D), 0, 0);
 
-            tmpMat.set(headNodeDefaultMat);
-            tmpMat.rotate((float) Math.toRadians(Math.sin(time) * 35.0D), 0, 0, 1);
-
-            headNode.setLocalMatrix(tmpMat);
-
-            tmpMat.set(leftArmNodeDefaultMat);
-            tmpMat.rotate((float) Math.toRadians(Math.sin(time) * 60.0D), 1, 0, 0);
-
-            leftArmNode.setLocalMatrix(tmpMat);
-
-            tmpMat.set(rightArmNodeDefaultMat);
-            tmpMat.rotate((float) Math.toRadians(Math.sin(time) * -60.0D), 1, 0, 0);
-
-            rightArmNode.setLocalMatrix(tmpMat);
+            headNode.setEulerAngles(headNodeEuler);
+            rightArmNode.setEulerAngles(rightArmNodeEuler);
+            leftArmNode.setEulerAngles(leftArmNodeEuler);
 
             sceneRenderer.render(scene);
 

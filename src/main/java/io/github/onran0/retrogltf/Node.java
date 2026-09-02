@@ -1,6 +1,8 @@
 package io.github.onran0.retrogltf;
 
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +20,10 @@ public class Node {
     private final Matrix4f localMatrix;
     private final Matrix4f matrix;
 
+    private final Vector3f position = new Vector3f();
+    private final Quaternionf rotation = new Quaternionf();
+    private final Vector3f scale = new Vector3f(1, 1, 1);
+
     private Node parent;
     private final List<Node> children = new ArrayList<>();
 
@@ -30,6 +36,7 @@ public class Node {
         this.matrix = new Matrix4f();
 
         this.setParent(parent);
+        this.decomposeLocalMatrix();
     }
 
     public Optional<String> getName() {
@@ -56,12 +63,75 @@ public class Node {
         return this.meshFrontFaceMode;
     }
 
+    public void getPosition(Vector3f dst) {
+        dst.set(this.position);
+    }
+
+    public void setPosition(Vector3f position) {
+        this.position.set(position);
+
+        this.composeLocalMatrix();
+        this.updateGlobalMatrix();
+    }
+
+    public void getRotation(Quaternionf dst) {
+        dst.set(this.rotation);
+    }
+
+    public void setRotation(Quaternionf rotation) {
+        this.rotation.set(rotation);
+
+        this.composeLocalMatrix();
+        this.updateGlobalMatrix();
+    }
+
+    public void getEulerAngles(Vector3f dst) {
+        this.rotation.getEulerAnglesXYZ(dst);
+    }
+
+    public void setEulerAngles(Vector3f eulerAngles) {
+        this.rotation.rotationXYZ(eulerAngles.x(), eulerAngles.y(), eulerAngles.z());
+
+        this.composeLocalMatrix();
+        this.updateGlobalMatrix();
+    }
+
+    public void getScale(Vector3f dst) {
+        dst.set(this.scale);
+    }
+
+    public void setScale(Vector3f scale) {
+        this.scale.set(scale);
+
+        this.composeLocalMatrix();
+        this.updateGlobalMatrix();
+    }
+
+    public void setTRS(Vector3f position, Quaternionf rotation, Vector3f scale) {
+        this.position.set(position);
+        this.rotation.set(rotation);
+        this.scale.set(scale);
+
+        this.composeLocalMatrix();
+        this.updateGlobalMatrix();
+    }
+
+    public void setTRS(Vector3f position, Vector3f eulerAngles, Vector3f scale) {
+        this.position.set(position);
+        this.scale.set(scale);
+        this.rotation.rotationXYZ(eulerAngles.x(), eulerAngles.y(), eulerAngles.z());
+
+        this.composeLocalMatrix();
+        this.updateGlobalMatrix();
+    }
+
     public void getLocalMatrix(Matrix4f dst) {
         dst.set(this.localMatrix);
     }
 
     public void setLocalMatrix(Matrix4f localMatrix) {
         this.localMatrix.set(localMatrix);
+        this.decomposeLocalMatrix();
         this.updateGlobalMatrix();
     }
 
@@ -149,5 +219,18 @@ public class Node {
         }
 
         updateGlobalMatrix();
+    }
+
+    private void composeLocalMatrix() {
+        this.localMatrix.identity();
+        this.localMatrix.translate(this.position);
+        this.localMatrix.rotate(this.rotation);
+        this.localMatrix.scale(this.scale);
+    }
+
+    private void decomposeLocalMatrix() {
+        this.localMatrix.getTranslation(this.position);
+        this.localMatrix.getNormalizedRotation(this.rotation);
+        this.localMatrix.getScale(this.scale);
     }
 }
