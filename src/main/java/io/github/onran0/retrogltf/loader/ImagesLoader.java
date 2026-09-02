@@ -15,6 +15,8 @@ class ImagesLoader {
     public static BufferedImage[] loadImages(LoadContext context) throws GLTFLoadException {
         Profiler.startTaskTrack(LoaderTaskType.IMAGE_DECODING);
 
+        ImageIO.setUseCache(false);
+
         BufferViewsReader viewsReader = context.getViewsReader();
         GLTFParser parser = context.getParser();
         GLTFImage[] images = context.getParser().getImages();
