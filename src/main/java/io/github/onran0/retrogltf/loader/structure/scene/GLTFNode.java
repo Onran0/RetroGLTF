@@ -34,9 +34,25 @@ public class GLTFNode {
         this.skin = JSONUtil.getNullableInt(json, "skin");
         this.weights = JSONUtil.toFloatArray(json.optJSONArray("weights"));
 
-        this.translation = JSONUtil.toVector3(json.optJSONArray("translation"), new Vector3f());
-        this.rotation = JSONUtil.toQuaternion(json.optJSONArray("rotation"), new Quaternionf());
-        this.scale = JSONUtil.toVector3(json.optJSONArray("scale"), new Vector3f(1f, 1f, 1f));
+        // TODO: optimize TRS & matrix deserializing using float buffers pool
+
+        if(json.has("translation")) {
+            this.translation = JSONUtil.toVector3(json.optJSONArray("translation"));
+        } else {
+            this.translation = new Vector3f();
+        }
+
+        if(json.has("rotation")) {
+            this.rotation = JSONUtil.toQuaternion(json.optJSONArray("rotation"));
+        } else {
+            this.rotation = new Quaternionf();
+        }
+
+        if(json.has("scale")) {
+            this.scale = JSONUtil.toVector3(json.optJSONArray("scale"));
+        } else {
+            this.scale = new Vector3f(1f, 1f, 1f);
+        }
 
         this.matrix = JSONUtil.toMatrix4(json.optJSONArray("matrix"));
 

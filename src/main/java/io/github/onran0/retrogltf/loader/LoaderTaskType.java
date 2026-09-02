@@ -11,7 +11,8 @@ public enum LoaderTaskType {
     AWT_IMAGE_TO_BUFFER_TRANSCODING("awt_image_to_buffer_transcoding"),
     TEXTURE_LOADING("texture_loading"),
     MATERIALS_LOADING("materials_loading"),
-    NODES_LOADING("nodes_loading"),;
+    NODES_LOADING("nodes_loading"),
+    TEST("test");
 
     private final String literal;
 
