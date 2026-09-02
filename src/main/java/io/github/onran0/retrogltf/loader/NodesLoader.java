@@ -47,7 +47,7 @@ class NodesLoader {
     private Node loadNode(int index, Node parent) {
         GLTFNode node = this.nodes[index];
 
-        int meshFrontFaceMode = getNodeGlobalMatrix(index).determinant() >= 0 ? GL11.GL_CW : GL11.GL_CCW;
+        int meshFrontFaceMode = getNodeGlobalMatrix(index).determinant() >= 0 ? GL11.GL_CCW : GL11.GL_CW;
 
         IntermediateMesh mesh;
         Material[] materials;
