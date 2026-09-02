@@ -146,7 +146,9 @@ public class Profiler {
 
             long oldTime = executionTimeMap.containsKey(currentTask) ? executionTimeMap.get(currentTask) : 0;
 
-            executionTimeMap.put(currentTask, endTime - taskTrackAt + oldTime);
+            long duration = endTime - taskTrackAt;
+
+            executionTimeMap.put(currentTask, duration + oldTime);
 
             tasksStack.pop();
             tasksTrackTimeStack.pop();
@@ -156,7 +158,7 @@ public class Profiler {
                 taskTrackAt = -1;
             } else {
                 currentTask = tasksStack.peek();
-                taskTrackAt = tasksTrackTimeStack.peek();
+                taskTrackAt = tasksTrackTimeStack.peek() + duration;
             }
         }
     }
