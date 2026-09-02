@@ -70,7 +70,7 @@ public class NodeRenderer {
 
         for(GLMeshPrimitive primitive : node.getMesh().get().getPrimitives()) {
             if(primitive.getMaterialIndex() != -1) {
-                TextureInfo baseColor = node.getMaterial(primitive.getMaterialIndex()).getDiffuse();
+                TextureInfo baseColor = node.getMaterial(primitive.getMaterialIndex()).getBaseColor();
 
                 GL20.glUniform1i(this.uBaseColorTexCoordIndexLoc, baseColor.getTexCoordIndex());
 

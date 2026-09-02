@@ -24,21 +24,21 @@ class MaterialsLoader {
             if(material != null) {
                 GLTFPBRMetallicRoughness pbr = material.getPBRMetallicRoughness();
 
-                GLTexture diffuseTexture;
-                int diffuseTexCoordIndex;
+                GLTexture baseColorTexture;
+                int baseColorTexCoordIndex;
 
                 if(pbr.getBaseColorTexture().isPresent()) {
                     GLTFTextureInfo texInfo = pbr.getBaseColorTexture().get();
 
-                    diffuseTexture = textures[texInfo.getIndex()];
-                    diffuseTexCoordIndex = texInfo.getTexCoord();
+                    baseColorTexture = textures[texInfo.getIndex()];
+                    baseColorTexCoordIndex = texInfo.getTexCoord();
                 } else {
-                    diffuseTexture = GLTexture.MISSING;
-                    diffuseTexCoordIndex = 0;
+                    baseColorTexture = GLTexture.MISSING;
+                    baseColorTexCoordIndex = 0;
                 }
 
                 glMaterials[i] = new Material(
-                        new TextureInfo(diffuseTexture, diffuseTexCoordIndex),
+                        new TextureInfo(baseColorTexture, baseColorTexCoordIndex),
                         !material.isDoubleSided()
                 );
             }

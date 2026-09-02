@@ -1,19 +1,19 @@
 package io.github.onran0.retrogltf;
 
 public class Material {
-    private TextureInfo diffuse;
+    private TextureInfo baseColor;
     private boolean useCulling;
 
-    public Material(TextureInfo diffuse, boolean useCulling) {
-        if(diffuse == null)
+    public Material(TextureInfo baseColor, boolean useCulling) {
+        if(baseColor == null)
             throw new IllegalArgumentException("diffuse == null");
 
-        this.diffuse = diffuse;
+        this.baseColor = baseColor;
         this.useCulling = useCulling;
     }
 
-    public TextureInfo getDiffuse() {
-        return diffuse;
+    public TextureInfo getBaseColor() {
+        return baseColor;
     }
 
     public boolean isShouldUseCulling() {
@@ -21,7 +21,7 @@ public class Material {
     }
 
     public void set(Material material) {
-        this.diffuse = material.getDiffuse();
+        this.baseColor = material.getBaseColor();
         this.useCulling = material.useCulling;
     }
 }
