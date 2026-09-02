@@ -69,17 +69,18 @@ public final class RenderTest {
 
         Profiler.printMillis();
 
-        Node headNode = scene.findNodeByName("head");
-        Node rightArmNode = scene.findNodeByName("right_arm");
-        Node leftArmNode = scene.findNodeByName("left_arm");
+        Node headNode = scene.findNodeByName("mixamorig:Head_06");
+
+        Node leftArmNode = scene.findNodeByName("mixamorig:LeftArm_09");
+        Node rightArmNode = scene.findNodeByName("mixamorig:RightArm_00");
 
         Vector3f headNodeEuler = new Vector3f();
         Vector3f rightArmNodeEuler = new Vector3f();
         Vector3f leftArmNodeEuler = new Vector3f();
 
-//        headNode.getEulerAngles(headNodeEuler);
-//        rightArmNode.getEulerAngles(rightArmNodeEuler);
-//        leftArmNode.getEulerAngles(leftArmNodeEuler);
+        headNode.getEulerAngles(headNodeEuler);
+        rightArmNode.getEulerAngles(rightArmNodeEuler);
+        leftArmNode.getEulerAngles(leftArmNodeEuler);
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         float fov = 60.0f, aspect = 800f/600f, near = 0.1f, far = 100.0f;
@@ -121,13 +122,13 @@ public final class RenderTest {
 
             //renderCube();
 
-//            headNodeEuler.set(0, 0, (float) Math.toRadians(Math.sin(time) * 35.0D));
-//            rightArmNodeEuler.set((float) Math.toRadians(Math.sin(time) * -60.0D), 0, 0);
-//            leftArmNodeEuler.set((float) Math.toRadians(Math.sin(time) * 60.0D), 0, 0);
-//
-//            headNode.setEulerAngles(headNodeEuler);
-//            rightArmNode.setEulerAngles(rightArmNodeEuler);
-//            leftArmNode.setEulerAngles(leftArmNodeEuler);
+            headNodeEuler.set(0, 0, (float) Math.toRadians(Math.sin(time) * 35.0D));
+            rightArmNodeEuler.set((float) Math.toRadians(Math.sin(time) * -60.0D), 0, 0);
+            leftArmNodeEuler.set((float) Math.toRadians(Math.sin(time) * 60.0D), 0, 0);
+
+            headNode.setEulerAngles(headNodeEuler);
+            rightArmNode.setEulerAngles(rightArmNodeEuler);
+            leftArmNode.setEulerAngles(leftArmNodeEuler);
 
             sceneRenderer.render(scene);
 

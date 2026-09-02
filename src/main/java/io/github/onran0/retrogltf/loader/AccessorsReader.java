@@ -22,18 +22,16 @@ class AccessorsReader {
     private final Map<GLTFAccessor, Map<Integer, Integer>> sparseAccessorSrcElemIndexToSparseIndexMap = new HashMap<>();
     private final Map<GLTFAccessor, int[]> sparseAccessorIndicesMap = new HashMap<>();
 
-    private final ByteBuffer fastBuf;
+    private final ByteBuffer fastBuf = ByteBuffer.allocate(1024 * 1024);
 
     public AccessorsReader(
             GLTFAccessor[] accessors,
             GLTFBufferView[] views,
-            BufferViewsReader viewsReader,
-            ByteBuffer fastBuf
+            BufferViewsReader viewsReader
     ) {
         this.accessors = accessors;
         this.views = views;
         this.viewsReader = viewsReader;
-        this.fastBuf = fastBuf;
 
         for (GLTFAccessor accessor : accessors) {
             accessor.getSparse().ifPresent(sparseAccessor -> {

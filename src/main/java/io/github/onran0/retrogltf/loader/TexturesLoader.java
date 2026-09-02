@@ -24,7 +24,7 @@ class TexturesLoader {
         Profiler.setEnabledTrack(false);
 
         MISSING_TEX = ImagesDecoder.bufferedImageToRGBA8ImageContainer(
-                bufImg, ByteBuffer.allocateDirect(4 * 4 * 4)
+                bufImg, ByteBuffer.allocateDirect(4 * 4 * 4), false
         );
 
         Profiler.setEnabledTrack(true);
@@ -81,7 +81,7 @@ class TexturesLoader {
                         imgContainer = ImagesDecoder.loadImage(context, source);
 
                         if(parser.getImageReferencesCount(source) > 1) {
-                            if(imgContainer.isTemporaryBuffer()) {
+                            if(imgContainer.isBufferFromPool()) {
                                 ByteBuffer cacheBuffer = ByteBuffer.allocateDirect(
                                         imgContainer.getBuffer().limit()
                                 );
@@ -89,9 +89,12 @@ class TexturesLoader {
                                 cacheBuffer.put(imgContainer.getBuffer());
                                 cacheBuffer.flip();
 
+                                context.pushFastBuffer(imgContainer.getBuffer());
+
                                 imgContainer = new RGBA8ImageContainer(
                                         imgContainer.getWidth(),
                                         imgContainer.getHeight(),
+                                        imgContainer.getColorModel(),
                                         cacheBuffer,
                                         false
                                 );
@@ -135,7 +138,9 @@ class TexturesLoader {
 
                 GL11.glTexImage2D(
                         GL11.GL_TEXTURE_2D, 0,
-                        GL11.GL_RGBA, imgContainer.getWidth(), imgContainer.getHeight(), 0, GL11.GL_RGBA,
+                        imgContainer.getColorModel().getGLType(),
+                        imgContainer.getWidth(), imgContainer.getHeight(),
+                        0, imgContainer.getColorModel().getGLType(),
                         GL11.GL_UNSIGNED_BYTE, imgContainer.getBuffer()
                 );
 
@@ -145,6 +150,9 @@ class TexturesLoader {
 
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
+                if(imgContainer.isBufferFromPool()) {
+                    context.pushFastBuffer(imgContainer.getBuffer());
+                }
                 glTextures[i] = new GLTexture(textureId);
             }
         }

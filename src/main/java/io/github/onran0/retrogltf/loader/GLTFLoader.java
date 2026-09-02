@@ -55,8 +55,7 @@ public class GLTFLoader {
         AccessorsReader accessorsReader = new AccessorsReader(
                 accessors,
                 views,
-                viewsReader,
-                loadContext.getFastBuffer()
+                viewsReader
         );
 
         loadContext.setAccessorsReader(accessorsReader);

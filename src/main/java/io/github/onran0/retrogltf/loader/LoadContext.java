@@ -2,14 +2,26 @@ package io.github.onran0.retrogltf.loader;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayDeque;
 
 class LoadContext {
-    private final ByteBuffer fastBuffer = ByteBuffer.allocateDirect(1024 * 1024 * 4)  // 4 MB
-            .order(ByteOrder.nativeOrder());
+    private static final int DIRECT_BUFFERS_COUNT = 2;
+    private static final int DIRECT_BUFFER_SIZE = 1024 * 1024 * 4; // 4 MB
+
+    private final ArrayDeque<ByteBuffer> directBuffers = new ArrayDeque<>();
 
     private BufferViewsReader viewsReader;
     private AccessorsReader accessorsReader;
     private GLTFParser parser;
+
+    public LoadContext() {
+        for(int i = 0; i < DIRECT_BUFFERS_COUNT; ++i) {
+            directBuffers.add(
+                    ByteBuffer.allocateDirect(DIRECT_BUFFER_SIZE)
+                            .order(ByteOrder.nativeOrder())
+            );
+        }
+    }
 
     public BufferViewsReader getViewsReader() {
         return viewsReader;
@@ -35,7 +47,18 @@ class LoadContext {
         this.parser = parser;
     }
 
-    public ByteBuffer getFastBuffer() {
-        return fastBuffer;
+    public ByteBuffer popFastBuffer() {
+        return this.directBuffers.pop();
+    }
+
+    public int getFreeBuffersCount() {
+        return this.directBuffers.size();
+    }
+
+    public void pushFastBuffer(ByteBuffer buffer) {
+        if(!buffer.isDirect())
+            throw new IllegalArgumentException("buffer must be direct");
+
+        this.directBuffers.push(buffer);
     }
 }

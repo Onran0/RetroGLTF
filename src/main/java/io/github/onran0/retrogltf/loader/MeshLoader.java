@@ -85,7 +85,7 @@ class MeshLoader {
         GLTFBufferView[] views = context.getParser().getViews();
         GLTFAccessor[] accessors = context.getParser().getAccessors();
 
-        ByteBuffer fastBuf = context.getFastBuffer();
+        ByteBuffer fastBuf = context.popFastBuffer();
 
         GLTFMeshPrimitive[] primitives = mesh.getPrimitives();
 
@@ -245,6 +245,8 @@ class MeshLoader {
                     localMaterialIndex
             );
         }
+
+        context.pushFastBuffer(fastBuf);
 
         return new IntermediateMesh(new GLMesh(glPrimitives), globalMaterialIndexToLocalMap);
     }

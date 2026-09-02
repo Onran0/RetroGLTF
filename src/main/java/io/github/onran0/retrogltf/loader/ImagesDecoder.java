@@ -1,5 +1,6 @@
 package io.github.onran0.retrogltf.loader;
 
+import io.github.onran0.retrogltf.enums.MimeType;
 import io.github.onran0.retrogltf.loader.structure.texture.GLTFImage;
 import io.github.onran0.retrogltf.loader.util.ByteBufferInputStream;
 import io.github.onran0.retrogltf.loader.util.IOUtil;
@@ -16,7 +17,7 @@ class ImagesDecoder {
         ImageIO.setUseCache(false);
     }
 
-    public static RGBA8ImageContainer bufferedImageToRGBA8ImageContainer(BufferedImage image, ByteBuffer fastBuf) {
+    public static RGBA8ImageContainer bufferedImageToRGBA8ImageContainer(BufferedImage image, ByteBuffer cachedBuf, boolean isFromPool) {
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -26,7 +27,9 @@ class ImagesDecoder {
 
         image.getRGB(0, 0, width, height, rgbArray, 0, width);
 
-        ByteBuffer imgBuf = IOUtil.getFastOrDirectAlloc(fastBuf,width * height * 4);
+        ByteBuffer imgBuf = IOUtil.getFastOrDirectAlloc(cachedBuf,width * height * 4);
+
+        boolean hasAlpha = image.getColorModel().hasAlpha();
 
         for (int y = 0; y < height; y++) {
             int rowOffset = y * width;
@@ -37,7 +40,10 @@ class ImagesDecoder {
                 imgBuf.put((byte) ((color >> 16) & 0xFF)); // R
                 imgBuf.put((byte) ((color >> 8) & 0xFF));  // G
                 imgBuf.put((byte) (color & 0xFF));         // B
-                imgBuf.put((byte) ((color >> 24) & 0xFF)); // A
+
+                if(hasAlpha) {
+                    imgBuf.put((byte) ((color >> 24) & 0xFF));
+                }
             }
         }
 
@@ -46,7 +52,8 @@ class ImagesDecoder {
         Profiler.endTaskTrack();
 
         return new RGBA8ImageContainer(
-                width, height, imgBuf, imgBuf == fastBuf
+                width, height, hasAlpha ? ImageColorModel.RGBA : ImageColorModel.RGB,
+                imgBuf, imgBuf == cachedBuf && isFromPool
         );
     }
 
@@ -58,7 +65,7 @@ class ImagesDecoder {
 
         GLTFImage image = parser.getImages()[id];
 
-        ByteBuffer fastBuf = context.getFastBuffer();
+        ByteBuffer fastBuf = null;
 
         ByteBuffer imgBuf;
 
@@ -66,7 +73,10 @@ class ImagesDecoder {
             int view = image.getBufferView().get();
             int len = viewsReader.getViewLength(view);
 
-            imgBuf = IOUtil.getFastOrDirectAlloc(fastBuf, len);
+            imgBuf = IOUtil.getFastOrDirectAlloc(fastBuf = context.popFastBuffer(), len);
+
+            if(imgBuf != fastBuf)
+                context.pushFastBuffer(fastBuf);
 
             viewsReader.get(imgBuf, view, 0, len);
         } else if(image.getURI().isPresent()) {
@@ -80,13 +90,35 @@ class ImagesDecoder {
         imgBuf.rewind();
 
         try {
-            BufferedImage bufImg = ImageIO.read(new ByteBufferInputStream(imgBuf));
+            MimeType mimeType = MimeType.getMimeType(imgBuf);
 
-            Profiler.endTaskTrack();
+            RGBA8ImageContainer res;
 
-            imgBuf.clear();
+            switch(mimeType) {
+                case PNG:
+                    res = PNGJImageDecoder.decodePng(context, imgBuf);
 
-            return bufferedImageToRGBA8ImageContainer(bufImg, imgBuf);
+                    if(imgBuf == fastBuf)
+                        context.pushFastBuffer(fastBuf);
+
+                    return res;
+
+                case JPEG:
+                    BufferedImage bufImg = ImageIO.read(new ByteBufferInputStream(imgBuf));
+
+                    Profiler.endTaskTrack();
+
+                    imgBuf.clear();
+
+                    res = bufferedImageToRGBA8ImageContainer(bufImg, imgBuf, imgBuf == fastBuf);
+
+                    if(!res.isBufferFromPool() && imgBuf == fastBuf)
+                        context.pushFastBuffer(fastBuf);
+
+                    return res;
+
+                default: throw new GLTFLoadException("unsupported mime type: " + mimeType);
+            }
         } catch (IOException e) {
             throw new GLTFLoadException(e);
         }
