@@ -27,6 +27,9 @@ public class SceneRenderer {
     }
 
     private void renderNode(Node node, Matrix4f mvpMatrix) {
+        if(!node.isVisible())
+            return;
+
         nodeRenderer.render(node, mvpMatrix);
 
         for(Node child : node.getChildren()) {

@@ -27,6 +27,8 @@ public class Node {
     private Node parent;
     private final List<Node> children = new ArrayList<>();
 
+    private boolean visible = true;
+
     public Node(String name, GLMesh mesh, int meshFrontFaceMode, Material[] materials, Matrix4f localMatrix, Node parent) {
         this.name = name;
         this.mesh = mesh;
@@ -150,6 +152,14 @@ public class Node {
         for(Node child : children) {
             child.updateGlobalMatrix();
         }
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 
     public Node findInDirectChildren(Predicate<Node> filter) {
