@@ -5,6 +5,8 @@ import java.util.*;
 public class Profiler {
     private static final boolean ACTIVE = Boolean.getBoolean("retrogltf.enableProfiler");
 
+    private static boolean doTrack = true;
+
     private static final Map<LoaderTaskType, Long> executionTimeMap = new EnumMap<>(LoaderTaskType.class);
 
     private static LoaderTaskType currentTask;
@@ -130,8 +132,16 @@ public class Profiler {
         tasksTrackTimeStack.clear();
     }
 
+    public static void setEnabledTrack(boolean enabled) {
+        doTrack = enabled;
+    }
+
+    public static boolean isTrackEnabled() {
+        return doTrack;
+    }
+
     public static void startTaskTrack(LoaderTaskType task) {
-        if(ACTIVE) {
+        if(ACTIVE && doTrack) {
             currentTask = task;
             taskTrackAt = System.nanoTime();
 
@@ -141,7 +151,7 @@ public class Profiler {
     }
 
     public static void endTaskTrack() {
-        if(ACTIVE) {
+        if(ACTIVE && doTrack) {
             long endTime = System.nanoTime();
 
             long oldTime = executionTimeMap.containsKey(currentTask) ? executionTimeMap.get(currentTask) : 0;
@@ -158,7 +168,8 @@ public class Profiler {
                 taskTrackAt = -1;
             } else {
                 currentTask = tasksStack.peek();
-                taskTrackAt = tasksTrackTimeStack.peek() + duration;
+                taskTrackAt = tasksTrackTimeStack.pop() + duration;
+                tasksTrackTimeStack.push(taskTrackAt);
             }
         }
     }
