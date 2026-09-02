@@ -44,3 +44,4 @@ build/
 ### Other ###
 *.gltf
 *.glb
+test/
