@@ -1,19 +1,22 @@
 package io.github.onran0.retrogltf.enums;
 
 public enum TextureMinFilter {
-    NEAREST(9728),
-    LINEAR(9729),
-    NEAREST_MIPMAP_NEAREST(9984),
-    LINEAR_MIPMAP_NEAREST(9985),
-    NEAREST_MIPMAP_LINEAR(9986),
-    LINEAR_MIPMAP_LINEAR(9987);
+    NEAREST(9728, false),
+    LINEAR(9729, false),
+    NEAREST_MIPMAP_NEAREST(9984, true),
+    LINEAR_MIPMAP_NEAREST(9985, true),
+    NEAREST_MIPMAP_LINEAR(9986, true),
+    LINEAR_MIPMAP_LINEAR(9987, true);
 
     private final int gltfId;
     private final int glType;
 
-    TextureMinFilter(final int gltfId) {
+    private final boolean mipmap;
+
+    TextureMinFilter(final int gltfId, final boolean mipmap) {
         this.gltfId = gltfId;
         this.glType = gltfId;
+        this.mipmap = mipmap;
     }
 
     public int getGLTFId() {
@@ -22,6 +25,10 @@ public enum TextureMinFilter {
 
     public int getGLType() {
         return glType;
+    }
+
+    public boolean isMipmap() {
+        return mipmap;
     }
 
     public static TextureMinFilter getById(int id) {

@@ -5,6 +5,7 @@ import io.github.onran0.retrogltf.enums.*;
 import io.github.onran0.retrogltf.loader.structure.texture.GLTFTexture;
 import io.github.onran0.retrogltf.loader.structure.texture.GLTFTextureSampler;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
@@ -138,7 +139,9 @@ class TexturesLoader {
                         GL11.GL_UNSIGNED_BYTE, imgContainer.getBuffer()
                 );
 
-                //GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+                if(minFilter.isMipmap()) {
+                    GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+                }
 
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
