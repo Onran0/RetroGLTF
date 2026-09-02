@@ -2,6 +2,7 @@ package io.github.onran0.retrogltf;
 
 import io.github.onran0.retrogltf.loader.GLTFLoadException;
 import io.github.onran0.retrogltf.loader.GLTFLoader;
+import io.github.onran0.retrogltf.loader.Profiler;
 import io.github.onran0.retrogltf.render.SceneRenderer;
 import org.joml.Matrix4f;
 import org.json.JSONObject;
@@ -51,7 +52,7 @@ public final class RenderTest {
 
         System.out.println("Loading glTF...");
 
-        long start = System.currentTimeMillis();
+        Profiler.clear();
 
         Scene scene = new GLTFLoader(
                 new JSONObject(
@@ -64,11 +65,7 @@ public final class RenderTest {
                 )
         ).load();
 
-        long end = System.currentTimeMillis();
-
-        System.out.printf(
-                "test.gltf successfully loaded in %dms !%n", end - start
-        );
+        Profiler.printMillis();
 
         Node headNode = scene.findNodeByName("head");
         Node rightArmNode = scene.findNodeByName("right_arm");

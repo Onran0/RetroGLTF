@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 class GLTFParser {
     public static final int MIN_SUPPORTED_MAJOR_VERSION = 2;
@@ -107,9 +106,15 @@ class GLTFParser {
         String uri = URLDecoder.decode(srcUri, "UTF-8");
 
         if(uri.startsWith("data:")) {
-            return ByteBuffer.wrap(
+            Profiler.startTaskTrack(LoaderTaskType.BASE64_BUFFER_READING);
+
+            ByteBuffer res = ByteBuffer.wrap(
                     Base64.getDecoder().decode(srcUri.substring( srcUri.indexOf(";base64,") + 8))
             );
+
+            Profiler.endTaskTrack();
+
+            return res;
         } else {
             int colon = uri.indexOf("/");
 
@@ -119,11 +124,19 @@ class GLTFParser {
                 if(this.fileProvider == null)
                     throw new IllegalStateException("File provider is undefined");
 
+                Profiler.startTaskTrack(LoaderTaskType.FILE_BUFFER_READING);
+
+                ByteBuffer res;
+
                 if(byteLength > 0) {
-                    return this.fileProvider.getFileData(uri, byteLength);
+                    res = this.fileProvider.getFileData(uri, byteLength);
                 } else {
-                    return this.fileProvider.getFileData(uri);
+                    res = this.fileProvider.getFileData(uri);
                 }
+
+                Profiler.endTaskTrack();
+
+                return res;
             } else {
                 throw new IllegalArgumentException("Unsupported buffer URI: " + srcUri);
             }
@@ -311,6 +324,8 @@ class GLTFParser {
     }
 
     public void parse() throws GLTFLoadException {
+        Profiler.startTaskTrack(LoaderTaskType.GLTF_PARSING);
+
         GLTFAsset asset = new GLTFAsset(root.getJSONObject("asset"));
 
         if(
@@ -375,5 +390,7 @@ class GLTFParser {
 
         initStructure();
         parseUsedGLTFProperties(root.getInt("scene"));
+
+        Profiler.endTaskTrack();
     }
 }

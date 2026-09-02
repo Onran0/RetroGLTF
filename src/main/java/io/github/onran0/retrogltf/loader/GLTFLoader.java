@@ -7,7 +7,6 @@ import io.github.onran0.retrogltf.Scene;
 import io.github.onran0.retrogltf.loader.io.IFileProvider;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFAccessor;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFBufferView;
-import io.github.onran0.retrogltf.loader.structure.mesh.GLTFMesh;
 import org.json.JSONObject;
 
 import java.io.File;

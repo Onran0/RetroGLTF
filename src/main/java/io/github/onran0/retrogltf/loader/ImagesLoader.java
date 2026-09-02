@@ -13,6 +13,8 @@ class ImagesLoader {
     private ImagesLoader() { }
 
     public static BufferedImage[] loadImages(LoadContext context) throws GLTFLoadException {
+        Profiler.startTaskTrack(LoaderTaskType.IMAGE_DECODING);
+
         BufferViewsReader viewsReader = context.getViewsReader();
         GLTFParser parser = context.getParser();
         GLTFImage[] images = context.getParser().getImages();
@@ -51,6 +53,8 @@ class ImagesLoader {
                 }
             }
         }
+
+        Profiler.endTaskTrack();
 
         return loadedImages;
     }

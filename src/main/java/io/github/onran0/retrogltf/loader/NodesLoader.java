@@ -86,6 +86,8 @@ class NodesLoader {
     }
 
     public List<Node> loadNodes() {
+        Profiler.startTaskTrack(LoaderTaskType.NODES_LOADING);
+
         List<Node> outputNodes = new ArrayList<>();
 
         for(int i = 0;i < this.nodes.length;i++) {
@@ -97,6 +99,8 @@ class NodesLoader {
                 outputNodes.add(node);
             }
         }
+
+        Profiler.endTaskTrack();
 
         return outputNodes;
     }

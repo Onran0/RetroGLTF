@@ -250,6 +250,8 @@ class MeshLoader {
     }
 
     public static IntermediateMesh[] loadMeshes(LoadContext context) throws GLTFLoadException {
+        Profiler.startTaskTrack(LoaderTaskType.MESH_LOADING);
+
         GLTFMesh[] meshes = context.getParser().getMeshes();
 
         IntermediateMesh[] loadedMeshes = new IntermediateMesh[meshes.length];
@@ -261,6 +263,8 @@ class MeshLoader {
                 loadedMeshes[i] = loadMesh(context, mesh);
             }
         }
+
+        Profiler.endTaskTrack();
 
         return loadedMeshes;
     }

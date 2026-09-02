@@ -11,6 +11,8 @@ class MaterialsLoader {
     private MaterialsLoader() { }
 
     public static Material[] loadMaterials(LoadContext context, GLTexture[] textures) {
+        Profiler.startTaskTrack(LoaderTaskType.MATERIALS_LOADING);
+
         GLTFMaterial[] materials = context.getParser().getMaterials();
 
         Material[] glMaterials = new Material[materials.length];
@@ -41,6 +43,8 @@ class MaterialsLoader {
                 );
             }
         }
+
+        Profiler.endTaskTrack();
 
         return glMaterials;
     }
