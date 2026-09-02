@@ -4,31 +4,41 @@ import io.github.onran0.retrogltf.GLTexture;
 import io.github.onran0.retrogltf.enums.*;
 import io.github.onran0.retrogltf.loader.structure.texture.GLTFTexture;
 import io.github.onran0.retrogltf.loader.structure.texture.GLTFTextureSampler;
-import io.github.onran0.retrogltf.loader.util.IOUtil;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
 class TexturesLoader {
-    private static final BufferedImage MISSING_TEX = new BufferedImage(2, 2, BufferedImage.TYPE_INT_ARGB);
+    private static final RGBA8ImageContainer MISSING_TEX;
 
     static {
-        int purple = 0xF403FCFF;
+        int purple = 0xFFFC03F4;
 
-        MISSING_TEX.setRGB(0, 0, purple);
-        MISSING_TEX.setRGB(1, 1, purple);
+        BufferedImage bufImg = new BufferedImage(2, 2, BufferedImage.TYPE_INT_ARGB);
+
+        bufImg.setRGB(0, 0, purple);
+        bufImg.setRGB(1, 1, purple);
+
+        Profiler.setEnabledTrack(false);
+
+        MISSING_TEX = ImagesDecoder.bufferedImageToRGBA8ImageContainer(
+                bufImg, ByteBuffer.allocateDirect(4 * 4 * 4)
+        );
+
+        Profiler.setEnabledTrack(true);
     }
 
     private TexturesLoader() { }
 
-    public static GLTexture[] loadTextures(LoadContext context, BufferedImage[] images) {
+    public static GLTexture[] loadTextures(LoadContext context) throws GLTFLoadException {
         Profiler.startTaskTrack(LoaderTaskType.TEXTURE_LOADING);
 
         GLTFTexture[] textures = context.getParser().getTextures();
         GLTFTextureSampler[] samplers = context.getParser().getTextureSamplers();
+        GLTFParser parser = context.getParser();
 
-        ByteBuffer fastBuf = context.getFastBuffer();
+        RGBA8ImageContainer[] cachedImages = new RGBA8ImageContainer[parser.getImages().length];
 
         GLTexture[] glTextures = new GLTexture[textures.length];
 
@@ -36,14 +46,6 @@ class TexturesLoader {
             GLTFTexture texture = textures[i];
 
             if(texture != null) {
-                BufferedImage sourceImg;
-
-                if(texture.getSource().isPresent()) {
-                    sourceImg = images[texture.getSource().get()];
-                } else {
-                    sourceImg = MISSING_TEX;
-                }
-
                 TextureMagFilter magFilter;
                 TextureMinFilter minFilter;
 
@@ -66,34 +68,47 @@ class TexturesLoader {
                     wrapT = TextureWrapMode.REPEAT;
                 }
 
-                int width = sourceImg.getWidth();
-                int height = sourceImg.getHeight();
+                RGBA8ImageContainer imgContainer;
 
-                Profiler.startTaskTrack(LoaderTaskType.AWT_IMAGE_TO_BUFFER_TRANSCODING);
+                if(texture.getSource().isPresent()) {
+                    int source = texture.getSource().get();
 
-                int[] rgbArray = new int[width * height];
+                    if(cachedImages[source] != null) {
+                        imgContainer = cachedImages[source];
+                        imgContainer.getBuffer().rewind();
+                    } else {
+                        imgContainer = ImagesDecoder.loadImage(context, source);
 
-                sourceImg.getRGB(0, 0, width, height, rgbArray, 0, width);
+                        long ns = System.nanoTime();
 
-                int pixelsLength = width * height * 4;
-                ByteBuffer pixels = IOUtil.getFastOrDirectAlloc(fastBuf, pixelsLength);
+                        if(parser.getImageReferencesCount(source) > 1) {
+                            if(imgContainer.isTemporaryBuffer()) {
+                                ByteBuffer cacheBuffer = ByteBuffer.allocateDirect(
+                                        imgContainer.getBuffer().limit()
+                                );
 
-                for (int y = 0; y < height; y++) {
-                    int rowOffset = y * width;
+                                cacheBuffer.put(imgContainer.getBuffer());
+                                cacheBuffer.flip();
 
-                    for (int x = 0; x < width; x++) {
-                        int color = rgbArray[rowOffset + x];
+                                imgContainer = new RGBA8ImageContainer(
+                                        imgContainer.getWidth(),
+                                        imgContainer.getHeight(),
+                                        cacheBuffer,
+                                        false
+                                );
+                            }
 
-                        pixels.put((byte) ((color >> 16) & 0xFF)); // R
-                        pixels.put((byte) ((color >> 8) & 0xFF));  // G
-                        pixels.put((byte) (color & 0xFF));         // B
-                        pixels.put((byte) ((color >> 24) & 0xFF)); // A
+                            cachedImages[source] = imgContainer;
+                        }
+
+                        long ns2 = System.nanoTime();
+
+                        System.out.printf("%.3fms\n", (ns2 - ns) / 1_000_000D);
                     }
+                } else {
+                    imgContainer = MISSING_TEX;
+                    imgContainer.getBuffer().rewind();
                 }
-
-                pixels.flip();
-
-                Profiler.endTaskTrack();
 
                 int textureId = GL11.glGenTextures();
 
@@ -125,8 +140,8 @@ class TexturesLoader {
 
                 GL11.glTexImage2D(
                         GL11.GL_TEXTURE_2D, 0,
-                        GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA,
-                        GL11.GL_UNSIGNED_BYTE, pixels
+                        GL11.GL_RGBA, imgContainer.getWidth(), imgContainer.getHeight(), 0, GL11.GL_RGBA,
+                        GL11.GL_UNSIGNED_BYTE, imgContainer.getBuffer()
                 );
 
                 //GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);

@@ -71,7 +71,7 @@ public class GLTFLoader {
 
         IntermediateMesh[] loadedMeshes = MeshLoader.loadMeshes(loadContext);
 
-        GLTexture[] textures = TexturesLoader.loadTextures(loadContext, ImagesLoader.loadImages(loadContext));
+        GLTexture[] textures = TexturesLoader.loadTextures(loadContext);
 
         Material[] materials = MaterialsLoader.loadMaterials(loadContext, textures);
 

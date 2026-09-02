@@ -73,6 +73,7 @@ class GLTFParser {
 
     private int[] nodeParents;
     private boolean[] isNodeChildren;
+    private int[] imageReferences;
 
     /*                                    */
 
@@ -195,6 +196,10 @@ class GLTFParser {
         return images;
     }
 
+    public int getImageReferencesCount(int id) {
+        return this.imageReferences[id];
+    }
+
     public boolean[] isNodeChildrenTruthTable() {
         return isNodeChildren;
     }
@@ -214,8 +219,9 @@ class GLTFParser {
         textureSamplersJson = root.optJSONArray("samplers");
         imagesJson = root.optJSONArray("images");
 
-        nodeParents = new int[nodesJson.length()];
-        isNodeChildren = new boolean[nodesJson.length()];
+        nodeParents = new int[nodesJson == null ? 0 : nodesJson.length()];
+        isNodeChildren = new boolean[nodesJson == null ? 0 : nodesJson.length()];
+        imageReferences = new int[imagesJson == null ? 0 : imagesJson.length()];
 
         nodes = new GLTFNode[nodesJson == null ? 0 : nodesJson.length()];
         cameras = new GLTFCamera[camerasJson == null ? 0 : camerasJson.length()];
@@ -320,7 +326,10 @@ class GLTFParser {
     }
 
     private void parseImage(int imgIndex) {
-        images[imgIndex] = new GLTFImage(imagesJson.getJSONObject(imgIndex));
+        if(images[imgIndex] == null)
+            images[imgIndex] = new GLTFImage(imagesJson.getJSONObject(imgIndex));
+
+        imageReferences[imgIndex]++;
     }
 
     public void parse() throws GLTFLoadException {
