@@ -72,7 +72,7 @@ class GLTFParser {
     /* Utility properties for performance */
 
     private int[] nodeParents;
-    private boolean[] isNodeChildren;
+    private boolean[] isNodeChild;
     private int[] imageReferences;
 
     /*                                    */
@@ -200,8 +200,8 @@ class GLTFParser {
         return this.imageReferences[id];
     }
 
-    public boolean[] isNodeChildrenTruthTable() {
-        return isNodeChildren;
+    public boolean[] isNodeChildTruthTable() {
+        return isNodeChild;
     }
 
     public int[] getNodeParentsTable() {
@@ -220,7 +220,7 @@ class GLTFParser {
         imagesJson = root.optJSONArray("images");
 
         nodeParents = new int[nodesJson == null ? 0 : nodesJson.length()];
-        isNodeChildren = new boolean[nodesJson == null ? 0 : nodesJson.length()];
+        isNodeChild = new boolean[nodesJson == null ? 0 : nodesJson.length()];
         imageReferences = new int[imagesJson == null ? 0 : imagesJson.length()];
 
         nodes = new GLTFNode[nodesJson == null ? 0 : nodesJson.length()];
@@ -262,7 +262,7 @@ class GLTFParser {
         node.getChildren().ifPresent(children -> {
             for(int child : children) {
                 nodeParents[child] = nodeIndex;
-                isNodeChildren[child] = true;
+                isNodeChild[child] = true;
                 parseNode(child);
             }
         });

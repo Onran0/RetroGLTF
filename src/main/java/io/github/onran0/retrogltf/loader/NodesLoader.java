@@ -17,7 +17,7 @@ class NodesLoader {
     private final IntermediateMesh[] meshes;
     private final Material[] materials;
 
-    private final boolean[] isNodeChildren;
+    private final boolean[] isNodeChild;
     private final int[] nodeParents;
 
     public NodesLoader(
@@ -30,14 +30,14 @@ class NodesLoader {
         this.meshes = meshes;
         this.materials = materials;
 
-        this.isNodeChildren = parser.isNodeChildrenTruthTable();
+        this.isNodeChild = parser.isNodeChildTruthTable();
         this.nodeParents = parser.getNodeParentsTable();
     }
 
     private Matrix4f getNodeGlobalMatrix(int index) {
         Matrix4f localMatrix = this.nodes[index].getLocalMatrix();
 
-        if(!this.isNodeChildren[index]) {
+        if(!this.isNodeChild[index]) {
             return new Matrix4f(localMatrix);
         } else {
             return getNodeGlobalMatrix(this.nodeParents[index]).mul(localMatrix);
@@ -91,7 +91,7 @@ class NodesLoader {
         List<Node> outputNodes = new ArrayList<>();
 
         for(int i = 0;i < this.nodes.length;i++) {
-            if(!this.parser.isNodeChildrenTruthTable()[i] && this.nodes[i] != null) {
+            if(!this.parser.isNodeChildTruthTable()[i] && this.nodes[i] != null) {
                 Node node = loadNode(i, null);
 
                 node.updateGlobalMatrix();
