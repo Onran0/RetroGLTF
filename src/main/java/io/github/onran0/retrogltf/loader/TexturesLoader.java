@@ -23,6 +23,8 @@ class TexturesLoader {
     private TexturesLoader() { }
 
     public static GLTexture[] loadTextures(LoadContext context, BufferedImage[] images) {
+        Profiler.startTaskTrack(LoaderTaskType.TEXTURE_LOADING);
+
         GLTFTexture[] textures = context.getParser().getTextures();
         GLTFTextureSampler[] samplers = context.getParser().getTextureSamplers();
 
@@ -34,8 +36,6 @@ class TexturesLoader {
             GLTFTexture texture = textures[i];
 
             if(texture != null) {
-                Profiler.startTaskTrack(LoaderTaskType.TEXTURE_LOADING);
-
                 BufferedImage sourceImg;
 
                 if(texture.getSource().isPresent()) {
@@ -69,11 +69,6 @@ class TexturesLoader {
                 int width = sourceImg.getWidth();
                 int height = sourceImg.getHeight();
 
-                System.out.println(width);
-                System.out.println(height);
-
-                Profiler.endTaskTrack();
-
                 Profiler.startTaskTrack(LoaderTaskType.AWT_IMAGE_TO_BUFFER_TRANSCODING);
 
                 int[] rgbArray = new int[width * height];
@@ -99,8 +94,6 @@ class TexturesLoader {
                 pixels.flip();
 
                 Profiler.endTaskTrack();
-
-                Profiler.startTaskTrack(LoaderTaskType.TEXTURE_LOADING);
 
                 int textureId = GL11.glGenTextures();
 
@@ -141,10 +134,10 @@ class TexturesLoader {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
                 glTextures[i] = new GLTexture(textureId);
-
-                Profiler.endTaskTrack();
             }
         }
+
+        Profiler.endTaskTrack();
 
         return glTextures;
     }
