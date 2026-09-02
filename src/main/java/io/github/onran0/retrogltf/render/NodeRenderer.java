@@ -1,6 +1,7 @@
 package io.github.onran0.retrogltf.render;
 
 import io.github.onran0.retrogltf.GLMeshPrimitive;
+import io.github.onran0.retrogltf.Material;
 import io.github.onran0.retrogltf.Node;
 
 import io.github.onran0.retrogltf.TextureInfo;
@@ -69,10 +70,16 @@ public class NodeRenderer {
         GL11.glFrontFace(node.getFrontFaceMode());
 
         for(GLMeshPrimitive primitive : node.getMesh().get().getPrimitives()) {
+            boolean useCulling = false;
+
             if(primitive.getMaterialIndex() != -1) {
-                TextureInfo baseColor = node.getMaterial(primitive.getMaterialIndex()).getBaseColor();
+                Material material = node.getMaterial(primitive.getMaterialIndex());
+
+                TextureInfo baseColor = material.getBaseColor();
 
                 GL20.glUniform1i(this.uBaseColorTexCoordIndexLoc, baseColor.getTexCoordIndex());
+
+                useCulling = material.isShouldUseCulling() || this.renderSettings.isForcedCulling();
 
                 GL13.glActiveTexture(GL13.GL_TEXTURE0);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, baseColor.getTexture().getTextureID());
@@ -81,6 +88,11 @@ public class NodeRenderer {
 
                 GL13.glActiveTexture(GL13.GL_TEXTURE0);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+            }
+
+            if(useCulling) {
+                GL11.glEnable(GL11.GL_CULL_FACE);
+                GL11.glCullFace(GL11.GL_BACK);
             }
 
             GL30.glBindVertexArray(primitive.getVAO());
@@ -97,6 +109,10 @@ public class NodeRenderer {
                         primitive.getElementsType(),
                         0, primitive.getVerticesCount()
                 );
+            }
+
+            if(useCulling) {
+                GL11.glDisable(GL11.GL_CULL_FACE);
             }
 
             GL30.glBindVertexArray(0);
