@@ -79,8 +79,6 @@ class TexturesLoader {
                     } else {
                         imgContainer = ImagesDecoder.loadImage(context, source);
 
-                        long ns = System.nanoTime();
-
                         if(parser.getImageReferencesCount(source) > 1) {
                             if(imgContainer.isTemporaryBuffer()) {
                                 ByteBuffer cacheBuffer = ByteBuffer.allocateDirect(
@@ -100,10 +98,6 @@ class TexturesLoader {
 
                             cachedImages[source] = imgContainer;
                         }
-
-                        long ns2 = System.nanoTime();
-
-                        System.out.printf("%.3fms\n", (ns2 - ns) / 1_000_000D);
                     }
                 } else {
                     imgContainer = MISSING_TEX;
