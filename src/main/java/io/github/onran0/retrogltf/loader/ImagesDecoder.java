@@ -101,12 +101,10 @@ class ImagesDecoder {
                     if(imgBuf == fastBuf)
                         context.pushFastBuffer(fastBuf);
 
-                    return res;
+                    break;
 
                 case JPEG:
                     BufferedImage bufImg = ImageIO.read(new ByteBufferInputStream(imgBuf));
-
-                    Profiler.endTaskTrack();
 
                     imgBuf.clear();
 
@@ -115,10 +113,14 @@ class ImagesDecoder {
                     if(!res.isBufferFromPool() && imgBuf == fastBuf)
                         context.pushFastBuffer(fastBuf);
 
-                    return res;
+                    break;
 
                 default: throw new GLTFLoadException("unsupported mime type: " + mimeType);
             }
+
+            Profiler.endTaskTrack();
+
+            return res;
         } catch (IOException e) {
             throw new GLTFLoadException(e);
         }
