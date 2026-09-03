@@ -17,7 +17,7 @@ class ImagesDecoder {
         ImageIO.setUseCache(false);
     }
 
-    public static RGBA8ImageContainer bufferedImageToRGBA8ImageContainer(BufferedImage image, ByteBuffer cachedBuf, boolean isFromPool) {
+    public static ImageContainer bufferedImageToRGBA8ImageContainer(BufferedImage image, ByteBuffer cachedBuf, boolean isFromPool) {
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -51,13 +51,13 @@ class ImagesDecoder {
 
         Profiler.endTaskTrack();
 
-        return new RGBA8ImageContainer(
+        return new ImageContainer(
                 width, height, hasAlpha ? ImageColorModel.RGBA : ImageColorModel.RGB,
                 imgBuf, imgBuf == cachedBuf && isFromPool
         );
     }
 
-    public static RGBA8ImageContainer loadImage(LoadContext context, int id) throws GLTFLoadException {
+    public static ImageContainer loadImage(LoadContext context, int id) throws GLTFLoadException {
         Profiler.startTaskTrack(LoaderTaskType.IMAGE_DECODING);
 
         BufferViewsReader viewsReader = context.getViewsReader();
@@ -92,7 +92,7 @@ class ImagesDecoder {
         try {
             MimeType mimeType = MimeType.getMimeType(imgBuf);
 
-            RGBA8ImageContainer res;
+            ImageContainer res;
 
             switch(mimeType) {
                 case PNG:

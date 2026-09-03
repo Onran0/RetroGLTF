@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 
 class PNGJImageDecoder {
 
-    public static RGBA8ImageContainer decodePng(LoadContext context, ByteBuffer data) {
+    public static ImageContainer decodePng(LoadContext context, ByteBuffer data) {
         PngReader reader = new PngReader(new ByteBufferInputStream(data));
 
         int width = reader.imgInfo.cols;
@@ -18,9 +18,16 @@ class PNGJImageDecoder {
 
         int channels = reader.imgInfo.channels;
 
+        boolean alpha = reader.imgInfo.alpha;
+        boolean greyscale = reader.imgInfo.greyscale;
+
+        int alphaOffset = greyscale ? 1 : 3;
+
         ByteBuffer fastBuf = context.popFastBuffer();
 
-        ByteBuffer pixelsBuf = IOUtil.getFastOrDirectAlloc(fastBuf, width * height * channels);
+        ByteBuffer pixelsBuf = IOUtil.getFastOrDirectAlloc(fastBuf,
+                width * height * channels
+        );
 
         for (int row = 0; row < reader.imgInfo.rows; row++) {
             IImageLine l1 = reader.readRow();
@@ -28,12 +35,16 @@ class PNGJImageDecoder {
             int[] scanline = ((ImageLineInt) l1).getScanline();
 
             for (int j = 0; j < reader.imgInfo.cols; j++) {
-                pixelsBuf.put((byte) scanline[j * channels]); // R
-                pixelsBuf.put((byte) scanline[j * channels + 1]); // G
-                pixelsBuf.put((byte) scanline[j * channels + 2]); // B
+                if(greyscale) {
+                    pixelsBuf.put((byte) scanline[j * channels]); // Grayscale
+                } else {
+                    pixelsBuf.put((byte) scanline[j * channels]); // R
+                    pixelsBuf.put((byte) scanline[j * channels + 1]); // G
+                    pixelsBuf.put((byte) scanline[j * channels + 2]); // B
+                }
 
-                if(channels > 3)
-                    pixelsBuf.put((byte) scanline[j * channels + 3]); // A
+                if(alpha)
+                    pixelsBuf.put((byte) scanline[j * channels + alphaOffset]); // A
             }
         }
 
@@ -41,8 +52,19 @@ class PNGJImageDecoder {
 
         pixelsBuf.flip();
 
-        return new RGBA8ImageContainer(
-                width, height, channels < 4 ? ImageColorModel.RGB : ImageColorModel.RGBA,
+        if(pixelsBuf != fastBuf)
+            context.pushFastBuffer(fastBuf);
+
+        ImageColorModel model;
+
+        if(!greyscale) {
+            model = alpha ? ImageColorModel.RGBA : ImageColorModel.RGB;
+        } else {
+            model = alpha ? ImageColorModel.GA : ImageColorModel.G;
+        }
+
+        return new ImageContainer(
+                width, height, model,
                 pixelsBuf, pixelsBuf == fastBuf
         );
     }

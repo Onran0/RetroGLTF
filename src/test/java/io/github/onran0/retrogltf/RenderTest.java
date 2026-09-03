@@ -60,13 +60,13 @@ public final class RenderTest {
         JSONObject json = new JSONObject(
                 new String(
                         Files.readAllBytes(
-                                Paths.get("test/scp049/scene.gltf")
+                                Paths.get("test/old_rusty_car/scene.gltf")
                         ),
                         StandardCharsets.UTF_8
                 )
         );
 
-        Path root = Paths.get("test/scp049");
+        Path root = Paths.get("test/old_rusty_car");
 
         LoaderWarmup.initializeClasses();
 
@@ -93,9 +93,9 @@ public final class RenderTest {
         Vector3f rightArmNodeEuler = new Vector3f();
         Vector3f leftArmNodeEuler = new Vector3f();
 
-        headNode.getEulerAngles(headNodeEuler);
-        rightArmNode.getEulerAngles(rightArmNodeEuler);
-        leftArmNode.getEulerAngles(leftArmNodeEuler);
+//        headNode.getEulerAngles(headNodeEuler);
+//        rightArmNode.getEulerAngles(rightArmNodeEuler);
+//        leftArmNode.getEulerAngles(leftArmNodeEuler);
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         float fov = 60.0f, aspect = 800f/600f, near = 0.1f, far = 100.0f;
@@ -135,15 +135,17 @@ public final class RenderTest {
             GL11.glRotatef(yaw, 0, 1, 0);
             GL11.glTranslatef(-x, -y, -z);
 
+            GL11.glScalef(0.01f, 0.01f, 0.01f);
+
             //renderCube();
 
             headNodeEuler.set((float) Math.toRadians(Math.sin(time) * 40.0D), 0, 0);
             rightArmNodeEuler.set((float) Math.toRadians(Math.sin(time) * 65.0D), 0, 0);
             leftArmNodeEuler.set((float) Math.toRadians(Math.sin(time) * 65.0D), 0, 0);
 
-            headNode.setEulerAngles(headNodeEuler);
-            rightArmNode.setEulerAngles(rightArmNodeEuler);
-            leftArmNode.setEulerAngles(leftArmNodeEuler);
+//            headNode.setEulerAngles(headNodeEuler);
+//            rightArmNode.setEulerAngles(rightArmNodeEuler);
+//            leftArmNode.setEulerAngles(leftArmNodeEuler);
 
             sceneRenderer.render(scene);
 

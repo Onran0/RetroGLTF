@@ -6,12 +6,13 @@ import io.github.onran0.retrogltf.loader.structure.texture.GLTFTexture;
 import io.github.onran0.retrogltf.loader.structure.texture.GLTFTextureSampler;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
 class TexturesLoader {
-    private static final RGBA8ImageContainer MISSING_TEX;
+    private static final ImageContainer MISSING_TEX;
 
     static {
         int purple = 0xFFFC03F4;
@@ -39,7 +40,7 @@ class TexturesLoader {
         GLTFTextureSampler[] samplers = context.getParser().getTextureSamplers();
         GLTFParser parser = context.getParser();
 
-        RGBA8ImageContainer[] cachedImages = new RGBA8ImageContainer[parser.getImages().length];
+        ImageContainer[] cachedImages = new ImageContainer[parser.getImages().length];
 
         GLTexture[] glTextures = new GLTexture[textures.length];
 
@@ -69,7 +70,7 @@ class TexturesLoader {
                     wrapT = TextureWrapMode.REPEAT;
                 }
 
-                RGBA8ImageContainer imgContainer;
+                ImageContainer imgContainer;
 
                 if(texture.getSource().isPresent()) {
                     int source = texture.getSource().get();
@@ -91,7 +92,7 @@ class TexturesLoader {
 
                                 context.pushFastBuffer(imgContainer.getBuffer());
 
-                                imgContainer = new RGBA8ImageContainer(
+                                imgContainer = new ImageContainer(
                                         imgContainer.getWidth(),
                                         imgContainer.getHeight(),
                                         imgContainer.getColorModel(),
@@ -136,11 +137,42 @@ class TexturesLoader {
                         wrapT.getGLType()
                 );
 
+                if(
+                        imgContainer.getColorModel() == ImageColorModel.G ||
+                        imgContainer.getColorModel() == ImageColorModel.GA
+                ) {
+                    GL11.glTexParameteri(
+                            GL11.GL_TEXTURE_2D,
+                            GL33.GL_TEXTURE_SWIZZLE_R,
+                            GL11.GL_RED
+                    );
+
+                    GL11.glTexParameteri(
+                            GL11.GL_TEXTURE_2D,
+                            GL33.GL_TEXTURE_SWIZZLE_G,
+                            GL11.GL_RED
+                    );
+
+                    GL11.glTexParameteri(
+                            GL11.GL_TEXTURE_2D,
+                            GL33.GL_TEXTURE_SWIZZLE_B,
+                            GL11.GL_RED
+                    );
+
+                    if(imgContainer.getColorModel() == ImageColorModel.GA) {
+                        GL11.glTexParameteri(
+                                GL11.GL_TEXTURE_2D,
+                                GL33.GL_TEXTURE_SWIZZLE_A,
+                                GL11.GL_GREEN
+                        );
+                    }
+                }
+
                 GL11.glTexImage2D(
                         GL11.GL_TEXTURE_2D, 0,
-                        imgContainer.getColorModel().getGLType(),
+                        imgContainer.getColorModel().getInternalGLFormat(),
                         imgContainer.getWidth(), imgContainer.getHeight(),
-                        0, imgContainer.getColorModel().getGLType(),
+                        0, imgContainer.getColorModel().getGLFormat(),
                         GL11.GL_UNSIGNED_BYTE, imgContainer.getBuffer()
                 );
 
@@ -153,6 +185,7 @@ class TexturesLoader {
                 if(imgContainer.isBufferFromPool()) {
                     context.pushFastBuffer(imgContainer.getBuffer());
                 }
+
                 glTextures[i] = new GLTexture(textureId);
             }
         }

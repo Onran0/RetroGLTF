@@ -2,14 +2,14 @@ package io.github.onran0.retrogltf.loader;
 
 import java.nio.ByteBuffer;
 
-class RGBA8ImageContainer {
+class ImageContainer {
     private final int width;
     private final int height;
     private final ImageColorModel colorModel;
     private final ByteBuffer buffer;
     private final boolean bufferFromPool;
 
-    public RGBA8ImageContainer(
+    public ImageContainer(
             final int width, final int height, ImageColorModel colorModel,
             final ByteBuffer buffer, final boolean bufferFromPool
     ) {
