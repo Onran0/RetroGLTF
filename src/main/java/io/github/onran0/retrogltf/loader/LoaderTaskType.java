@@ -4,6 +4,8 @@ public enum LoaderTaskType {
     GLTF_READING("gltf_reading"),
     JSON_PARSING("json_parsing"),
     GLTF_PARSING("gltf_parsing"),
+    SUB_LOADERS_INVOKER("sub_loaders_invoker"),
+    LOAD_CONTEXT_INIT("load_context_init"),
     FILE_BUFFER_READING("file_buffer_reading"),
     BASE64_BUFFER_READING("uri_buffer_reading"),
     MESH_LOADING("mesh_loading"),

@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class GLTFLoader {
+
     private final GLTFParser parser;
 
     public GLTFLoader(JSONObject root) {
@@ -38,6 +39,8 @@ public class GLTFLoader {
     }
 
     private LoadContext getLoadContext() {
+        Profiler.startTaskTrack(LoaderTaskType.LOAD_CONTEXT_INIT);
+
         GLTFBufferView[] views = this.parser.getViews();
         GLTFAccessor[] accessors = this.parser.getAccessors();
 
@@ -60,10 +63,14 @@ public class GLTFLoader {
 
         loadContext.setAccessorsReader(accessorsReader);
 
+        Profiler.endTaskTrack();
+
         return loadContext;
     }
 
     public Scene load() throws GLTFLoadException {
+        Profiler.startTaskTrack(LoaderTaskType.SUB_LOADERS_INVOKER);
+
         this.parser.parse();
 
         LoadContext loadContext = getLoadContext();
@@ -81,6 +88,8 @@ public class GLTFLoader {
         );
 
         List<Node> nodes = nodesLoader.loadNodes();
+
+        Profiler.endTaskTrack();
 
         return new Scene(this.parser.getScene().getName().orElse(null), nodes);
     }
