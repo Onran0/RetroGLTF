@@ -14,9 +14,14 @@ public class Profiler {
 
     private static final ArrayDeque<LoaderTaskType> tasksStack = new ArrayDeque<>();
     private static final ArrayDeque<Long> tasksTrackTimeStack = new ArrayDeque<>();
+    private static final ArrayDeque<Long> tmpLongStack = new ArrayDeque<>();
 
     public static boolean isActive() {
         return ACTIVE;
+    }
+
+    public static LoaderTaskType getCurrentTrackingTask() {
+        return currentTask;
     }
 
     public static Optional<Long> getTaskNanoExecutionTime(LoaderTaskType taskType) {
@@ -100,7 +105,9 @@ public class Profiler {
             }
         }
 
-        int i = 0;
+        int maxTaskNumberPrefixLength = getNumberLiteralLength(trackedTasksList.size());
+
+        int i = 1;
 
         for(Map.Entry<LoaderTaskType, Long> task : trackedTasksList) {
             LoaderTaskType taskType = task.getKey();
@@ -110,8 +117,9 @@ public class Profiler {
 
             System.out.printf(
                     Locale.US,
-                    "%d) %s%s= %s%s%s(%.3f%%)\n",
-                    ++i,
+                    "%s%d) %s%s= %s%s%s(%.3f%%)\n",
+                    repeatSpace(maxTaskNumberPrefixLength - getNumberLiteralLength(i)),
+                    i++,
                     taskType.getLiteral(),
                     repeatSpace(maxTaskLiteralLength - taskType.getLiteral().length() + 1),
                     numStr, timeUnit,
@@ -130,6 +138,9 @@ public class Profiler {
         executionTimeMap.clear();
         tasksStack.clear();
         tasksTrackTimeStack.clear();
+        tmpLongStack.clear();
+        currentTask = null;
+        taskTrackAt = 0;
     }
 
     public static void setEnabledTrack(boolean enabled) {
@@ -168,8 +179,16 @@ public class Profiler {
                 taskTrackAt = -1;
             } else {
                 currentTask = tasksStack.peek();
-                taskTrackAt = tasksTrackTimeStack.pop() + duration;
-                tasksTrackTimeStack.push(taskTrackAt);
+
+                while(!tasksTrackTimeStack.isEmpty()) {
+                    tmpLongStack.push(tasksTrackTimeStack.pop() + duration);
+                }
+
+                while(!tmpLongStack.isEmpty()) {
+                    tasksTrackTimeStack.push(tmpLongStack.removeFirst());
+                }
+
+                taskTrackAt = tasksTrackTimeStack.peek();
             }
         }
     }
@@ -190,5 +209,9 @@ public class Profiler {
         } else {
             return String.format(Locale.US, "%.3f", nanoTime / (double) divider);
         }
+    }
+
+    private static int getNumberLiteralLength(int num) {
+        return (int) Math.log10(num) + 1;
     }
 }
