@@ -2,9 +2,10 @@ package io.github.onran0.retrogltf;
 
 import io.github.onran0.retrogltf.loader.GLTFLoadException;
 import io.github.onran0.retrogltf.loader.GLTFLoader;
+import io.github.onran0.retrogltf.loader.LoaderWarmup;
 import io.github.onran0.retrogltf.loader.Profiler;
 import io.github.onran0.retrogltf.render.SceneRenderer;
-import org.joml.Matrix4f;
+import io.github.onran0.retrogltf.util.GLCleaner;
 import org.joml.Vector3f;
 import org.json.JSONObject;
 import org.lwjgl.LWJGLException;
@@ -17,8 +18,8 @@ import org.lwjgl.opengl.GL11;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.SQLOutput;
 
 public final class RenderTest {
 
@@ -54,17 +55,33 @@ public final class RenderTest {
 
         System.out.println("Loading glTF...");
 
+        Scene scene = null;
+
+        JSONObject json = new JSONObject(
+                new String(
+                        Files.readAllBytes(
+                                Paths.get("test/scp049/scene.gltf")
+                        ),
+                        StandardCharsets.UTF_8
+                )
+        );
+
+        Path root = Paths.get("test/scp049");
+
+        LoaderWarmup.initializeClasses();
+
+        scene = new GLTFLoader(
+                json, root
+        ).load();
+
+        Profiler.printMillis();
+
+        GLCleaner.freeScene(scene);
+
         Profiler.clear();
 
-        Scene scene = new GLTFLoader(
-                new JSONObject(
-                        new String(
-                                Files.readAllBytes(
-                                        Paths.get("test/scp049/scene.gltf")
-                                ),
-                                StandardCharsets.UTF_8
-                        )
-                ), Paths.get("test/scp049")
+        scene = new GLTFLoader(
+                json, root
         ).load();
 
         Profiler.printMillis();
