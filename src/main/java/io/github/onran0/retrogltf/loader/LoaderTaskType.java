@@ -12,7 +12,8 @@ public enum LoaderTaskType {
     TEXTURE_LOADING("texture_loading"),
     MATERIALS_LOADING("materials_loading"),
     NODES_LOADING("nodes_loading"),
-    TEST("test");
+    DEBUG_0("debug_0"),
+    DEBUG_1("debug_1");
 
     private final String literal;
 

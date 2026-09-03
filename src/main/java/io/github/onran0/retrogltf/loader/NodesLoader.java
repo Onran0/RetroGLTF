@@ -17,9 +17,6 @@ class NodesLoader {
     private final IntermediateMesh[] meshes;
     private final Material[] materials;
 
-    private final boolean[] isNodeChild;
-    private final int[] nodeParents;
-
     public NodesLoader(
             GLTFParser parser, GLTFNode[] nodes,
             IntermediateMesh[] meshes, Material[] materials
@@ -29,25 +26,10 @@ class NodesLoader {
 
         this.meshes = meshes;
         this.materials = materials;
-
-        this.isNodeChild = parser.isNodeChildTruthTable();
-        this.nodeParents = parser.getNodeParentsTable();
-    }
-
-    private Matrix4f getNodeGlobalMatrix(int index) {
-        Matrix4f localMatrix = this.nodes[index].getLocalMatrix();
-
-        if(!this.isNodeChild[index]) {
-            return new Matrix4f(localMatrix);
-        } else {
-            return getNodeGlobalMatrix(this.nodeParents[index]).mul(localMatrix);
-        }
     }
 
     private Node loadNode(int index, Node parent) {
         GLTFNode node = this.nodes[index];
-
-        int meshFrontFaceMode = getNodeGlobalMatrix(index).determinant() >= 0 ? GL11.GL_CCW : GL11.GL_CW;
 
         IntermediateMesh mesh;
         Material[] materials;
@@ -71,7 +53,7 @@ class NodesLoader {
 
         Node outputNode = new Node(
                 node.getName().get(),
-                mesh != null ? mesh.getGLMesh() : null, meshFrontFaceMode, materials,
+                mesh != null ? mesh.getGLMesh() : null, materials,
                 node.getLocalMatrix(),
                 parent
         );

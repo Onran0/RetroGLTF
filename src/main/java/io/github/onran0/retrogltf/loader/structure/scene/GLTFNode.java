@@ -5,65 +5,62 @@ import io.github.onran0.retrogltf.loader.util.JSONUtil;
 import org.joml.*;
 import org.json.*;
 
+import java.nio.FloatBuffer;
 import java.util.Optional;
 
 public class GLTFNode {
 
+    private static final Quaternionf TMP_QUAT = new Quaternionf();
+
     private final String name;
     private final int[] children;
 
-    private final Integer camera;
-    private final Integer mesh;
-    private final Integer skin;
+    private final int camera;
+    private final int mesh;
+    private final int skin;
     private final float[] weights;
 
-    private final Vector3f translation;
-    private final Quaternionf rotation;
-    private final Vector3f scale;
     private final Matrix4f matrix;
-
-    private final Matrix4f localMatrix;
 
     public GLTFNode(JSONObject json) {
         this.name = json.optString("name");
 
         this.children = JSONUtil.toIntArray(json.optJSONArray("children"));
 
-        this.camera = JSONUtil.getNullableInt(json, "camera");
-        this.mesh = JSONUtil.getNullableInt(json, "mesh");
-        this.skin = JSONUtil.getNullableInt(json, "skin");
+        this.camera = json.optInt("camera", -1);
+        this.mesh = json.optInt("mesh", -1);
+        this.skin = json.optInt("skin", -1);
         this.weights = JSONUtil.toFloatArray(json.optJSONArray("weights"));
 
-        // TODO: optimize TRS & matrix deserializing using float buffers pool
-
-        if(json.has("translation")) {
-            this.translation = JSONUtil.toVector3(json.optJSONArray("translation"));
+        if(json.has("matrix")) {
+            this.matrix = JSONUtil.toMatrix4(json.getJSONArray("matrix"));
         } else {
-            this.translation = new Vector3f();
-        }
+            JSONArray pos = json.optJSONArray("translation");
+            JSONArray rot = json.optJSONArray("rotation");
+            JSONArray scl = json.optJSONArray("scale");
 
-        if(json.has("rotation")) {
-            this.rotation = JSONUtil.toQuaternion(json.optJSONArray("rotation"));
-        } else {
-            this.rotation = new Quaternionf();
-        }
+            this.matrix = new Matrix4f();
 
-        if(json.has("scale")) {
-            this.scale = JSONUtil.toVector3(json.optJSONArray("scale"));
-        } else {
-            this.scale = new Vector3f(1f, 1f, 1f);
-        }
+            if(pos != null && rot != null && scl != null) {
+                this.matrix.translationRotateScale(
+                        pos.getFloat(0), pos.getFloat(1), pos.getFloat(2),
+                        rot.getFloat(0), rot.getFloat(1), rot.getFloat(2), rot.getFloat(3),
+                        scl.getFloat(0), scl.getFloat(1), scl.getFloat(2)
+                );
+            } else {
+                if(pos != null) {
+                    this.matrix.translate(pos.getFloat(0), pos.getFloat(1), pos.getFloat(2));
+                }
 
-        this.matrix = JSONUtil.toMatrix4(json.optJSONArray("matrix"));
+                if(rot != null) {
+                    TMP_QUAT.set(rot.getFloat(0), rot.getFloat(1), rot.getFloat(2), rot.getFloat(3));
+                    this.matrix.rotate(TMP_QUAT);
+                }
 
-        if(this.matrix != null) {
-            this.localMatrix = matrix;
-        } else {
-            this.localMatrix = new Matrix4f();
-
-            this.localMatrix.translate(translation);
-            this.localMatrix.rotate(rotation);
-            this.localMatrix.scale(scale);
+                if(scl != null) {
+                    this.matrix.scale(scl.getFloat(0), scl.getFloat(1), scl.getFloat(2));
+                }
+            }
         }
     }
 
@@ -78,40 +75,28 @@ public class GLTFNode {
     }
 
     public Optional<Integer> getCamera() {
-        return Optional.ofNullable(camera);
+        return Optional.ofNullable(camera == -1 ? null : camera);
     }
 
     public Optional<Integer> getMesh() {
-        return Optional.ofNullable(mesh);
+        return Optional.ofNullable(mesh == -1 ? null : mesh);
     }
 
     public Optional<Integer> getSkin() {
-        return Optional.ofNullable(skin);
+        return Optional.ofNullable(skin == -1 ? null : skin);
     }
 
     public Optional<float[]> getWeights() {
         return Optional.ofNullable(weights);
     }
 
-    public Optional<Vector3f> getTranslation() {
-        return Optional.ofNullable(translation);
-    }
-
-    public Optional<Quaternionf> getRotation() {
-        return Optional.ofNullable(rotation);
-    }
-
-    public Optional<Vector3f> getScale() {
-        return Optional.ofNullable(scale);
-    }
-
-    public Optional<Matrix4f> getDefinedMatrix() {
-        return Optional.ofNullable(matrix);
-    }
-
     // other
 
     public Matrix4f getLocalMatrix() {
-        return localMatrix;
+        return this.matrix;
+    }
+
+    public void getLocalMatrix(FloatBuffer dst) {
+        this.matrix.get(dst);
     }
 }

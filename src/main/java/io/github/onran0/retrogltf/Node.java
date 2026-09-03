@@ -3,7 +3,9 @@ package io.github.onran0.retrogltf;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,16 +31,18 @@ public class Node {
 
     private boolean visible = true;
 
-    public Node(String name, GLMesh mesh, int meshFrontFaceMode, Material[] materials, Matrix4f localMatrix, Node parent) {
+    public Node(String name, GLMesh mesh, Material[] materials, Matrix4f localMatrix, Node parent) {
         this.name = name;
         this.mesh = mesh;
-        this.meshFrontFaceMode = meshFrontFaceMode;
         this.materials = materials;
         this.localMatrix = localMatrix;
         this.matrix = new Matrix4f();
 
-        this.setParent(parent);
         this.decomposeLocalMatrix();
+
+        this.setParent(parent);
+
+        this.meshFrontFaceMode = this.matrix.determinant() >= 0 ? GL11.GL_CCW : GL11.GL_CW;
     }
 
     public Optional<String> getName() {

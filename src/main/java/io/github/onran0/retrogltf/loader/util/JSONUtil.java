@@ -3,6 +3,7 @@ package io.github.onran0.retrogltf.loader.util;
 import org.joml.*;
 import org.json.*;
 
+import java.nio.FloatBuffer;
 import java.util.function.Function;
 
 public class JSONUtil {
@@ -123,11 +124,25 @@ public class JSONUtil {
         if(arr == null)
             return null;
 
-        return new Matrix4f(
+        Matrix4f res = new Matrix4f();
+
+        toMatrix4(arr, res);
+
+        return res;
+    }
+
+    public static void toMatrix4(JSONArray arr, Matrix4f dst) {
+        dst.set(
                 arr.getFloat(0), arr.getFloat(1), arr.getFloat(2),arr.getFloat(3),
                 arr.getFloat(4), arr.getFloat(5), arr.getFloat(6),arr.getFloat(7),
                 arr.getFloat(8), arr.getFloat(9), arr.getFloat(10),arr.getFloat(11),
                 arr.getFloat(12), arr.getFloat(13), arr.getFloat(14),arr.getFloat(15)
         );
+    }
+
+    public static void putMatrixToFloatBuffer(JSONArray arr, FloatBuffer buf, int pos) {
+        for(int i = 0;i < 16;i++) {
+            buf.put(pos + i, arr.getFloat(i));
+        }
     }
 }
