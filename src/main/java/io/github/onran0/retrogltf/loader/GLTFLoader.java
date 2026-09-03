@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -89,8 +90,23 @@ public class GLTFLoader {
 
         List<Node> nodes = nodesLoader.loadNodes();
 
+        int skinsUbo = 0;
+        FloatBuffer skinsUboData = null;
+
+        if(!nodesLoader.getSkinnedNodes().isEmpty()) {
+            SkinsLoader skinsLoader = new SkinsLoader();
+
+            skinsLoader.loadSkins(loadContext, nodesLoader);
+
+            skinsUbo = skinsLoader.getUBO();
+            skinsUboData = skinsLoader.getUBOData();
+        }
+
         Profiler.endTaskTrack();
 
-        return new Scene(this.parser.getScene().getName().orElse(null), nodes);
+        return new Scene(
+                this.parser.getScene().getName().orElse(null), nodes,
+                skinsUbo, skinsUboData
+        );
     }
 }

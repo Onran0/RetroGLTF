@@ -3,18 +3,43 @@ package io.github.onran0.retrogltf.render;
 import io.github.onran0.retrogltf.util.ShaderCompileException;
 import io.github.onran0.retrogltf.util.ShaderCompiler;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+
+import java.io.*;
+import java.util.*;
 
 class BuiltinShaderLoader {
 
-    private static final String VERTEX_SHADER_PATH = "/shaders/builtin.vsh";
-    private static final String FRAGMENT_SHADER_PATH = "/shaders/builtin.fsh";
+    private static final String DEFAULT_VERTEX_SHADER_PATH = "/shaders/builtin/default.vsh";
+    private static final String UNLIT_FRAGMENT_SHADER_PATH = "/shaders/builtin/unlit.fsh";
+    private static final String SKIN_0_256_VERTEX_SHADER_PATH = "/shaders/builtin/skin/skin_0_256.vsh";
 
-    private static int program;
+    private static final Map<BuiltinVertexShaderType, String> VERTEX_SHADER_PATHS = new EnumMap<>(
+            BuiltinVertexShaderType.class
+    );
+
+    private static final Map<BuiltinFragmentShaderType, String> FRAGMENT_SHADER_PATHS = new EnumMap<>(
+            BuiltinFragmentShaderType.class
+    );
+
+    private static final Map<Integer, Integer> loadedPrograms = new HashMap<>();
+
+    static {
+        VERTEX_SHADER_PATHS.put(
+                BuiltinVertexShaderType.DEFAULT,
+                DEFAULT_VERTEX_SHADER_PATH
+        );
+
+        VERTEX_SHADER_PATHS.put(
+                BuiltinVertexShaderType.SKIN_0_256,
+                SKIN_0_256_VERTEX_SHADER_PATH
+        );
+
+        FRAGMENT_SHADER_PATHS.put(
+                BuiltinFragmentShaderType.UNLIT,
+                UNLIT_FRAGMENT_SHADER_PATH
+        );
+    }
 
     private static String readResource(String path) throws IOException {
         InputStream is = BuiltinShaderLoader.class.getResourceAsStream(path);
@@ -38,22 +63,32 @@ class BuiltinShaderLoader {
         return result.toString();
     }
 
-    private static int loadProgram() throws ShaderCompileException, IOException {
+    private static int loadProgram(
+            BuiltinVertexShaderType vert,
+            BuiltinFragmentShaderType frag
+
+    ) throws ShaderCompileException, IOException {
+
         return ShaderCompiler.createProgram(
-                readResource(VERTEX_SHADER_PATH),
-                readResource(FRAGMENT_SHADER_PATH)
+                readResource(VERTEX_SHADER_PATHS.get(vert)),
+                readResource(FRAGMENT_SHADER_PATHS.get(frag))
         );
     }
 
-    public static int getBuiltinProgram() {
-        if(program == 0) {
+    public static int getBuiltinProgram(
+            BuiltinVertexShaderType vert,
+            BuiltinFragmentShaderType frag
+    ) {
+        int hash = vert.ordinal() | frag.ordinal() << 16;
+
+        if(!loadedPrograms.containsKey(hash)) {
             try {
-                program = loadProgram();
+                loadedPrograms.put(hash, loadProgram(vert, frag));
             } catch(ShaderCompileException | IOException e) {
                 throw new RuntimeException("failed to load builtin shader", e);
             }
         }
 
-        return program;
+        return loadedPrograms.get(hash);
     }
 }

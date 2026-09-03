@@ -26,20 +26,20 @@ public class SceneRenderer {
         return nodeRenderer;
     }
 
-    private void renderNode(Node node, Matrix4f mvpMatrix) {
+    private void renderNode(Scene scene, Node node, Matrix4f mvpMatrix) {
         if(!node.isVisible())
             return;
 
-        nodeRenderer.render(node, mvpMatrix);
+        nodeRenderer.render(scene, node, mvpMatrix);
 
         for(Node child : node.getChildren()) {
-            renderNode(child, mvpMatrix);
+            renderNode(scene, child, mvpMatrix);
         }
     }
 
     public void render(Scene scene, Matrix4f mvpMatrix) {
         for(Node node : scene.getNodes()) {
-            renderNode(node, mvpMatrix);
+            renderNode(scene, node, mvpMatrix);
         }
     }
 

@@ -9,7 +9,5 @@ layout(binding = 0) uniform sampler2D uBaseColor;
 uniform int uBaseColorTexCoordIndex;
 
 void main() {
-    vec4 texColor = texture(uBaseColor, uBaseColorTexCoordIndex == 0 ? vTexCoord0 : vTexCoord1);
-
-    fragColor = texColor;
+    fragColor = texture(uBaseColor, uBaseColorTexCoordIndex == 0 ? vTexCoord0 : vTexCoord1);
 }

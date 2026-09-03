@@ -5,7 +5,6 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +13,8 @@ import java.util.function.Predicate;
 
 public class Node {
     private final String name;
-    private final GLMesh mesh;
+    private GLMesh mesh;
+    private Skin skin;
     private final int meshFrontFaceMode;
 
     private final Material[] materials;
@@ -63,6 +63,18 @@ public class Node {
 
     public Optional<GLMesh> getMesh() {
         return Optional.ofNullable(this.mesh);
+    }
+
+    public void setMesh(GLMesh mesh) {
+        this.mesh = mesh;
+    }
+
+    public Optional<Skin> getSkin() {
+        return Optional.ofNullable(this.skin);
+    }
+
+    public void setSkin(Skin skin) {
+        this.skin = skin;
     }
 
     public int getFrontFaceMode() {

@@ -74,8 +74,6 @@ public final class RenderTest {
                 json, root
         ).load();
 
-        Profiler.printMillis();
-
         GLCleaner.freeScene(scene);
 
         Profiler.clear();
@@ -139,9 +137,9 @@ public final class RenderTest {
 
             //renderCube();
 
-            headNodeEuler.set(0, 0, (float) Math.toRadians(Math.sin(time) * 35.0D));
-            rightArmNodeEuler.set((float) Math.toRadians(Math.sin(time) * -60.0D), 0, 0);
-            leftArmNodeEuler.set((float) Math.toRadians(Math.sin(time) * 60.0D), 0, 0);
+            headNodeEuler.set((float) Math.toRadians(Math.sin(time) * 40.0D), 0, 0);
+            rightArmNodeEuler.set((float) Math.toRadians(Math.sin(time) * 65.0D), 0, 0);
+            leftArmNodeEuler.set((float) Math.toRadians(Math.sin(time) * 65.0D), 0, 0);
 
             headNode.setEulerAngles(headNodeEuler);
             rightArmNode.setEulerAngles(rightArmNodeEuler);

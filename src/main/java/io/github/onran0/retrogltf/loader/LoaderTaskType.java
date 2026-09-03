@@ -9,6 +9,7 @@ public enum LoaderTaskType {
     FILE_BUFFER_READING("file_buffer_reading"),
     BASE64_BUFFER_READING("uri_buffer_reading"),
     MESH_LOADING("mesh_loading"),
+    SKIN_LOADING("skin_loading"),
     IMAGE_DECODING("image_decoding"),
     AWT_IMAGE_TO_BUFFER_TRANSCODING("awt_image_to_buffer_transcoding"),
     TEXTURE_LOADING("texture_loading"),

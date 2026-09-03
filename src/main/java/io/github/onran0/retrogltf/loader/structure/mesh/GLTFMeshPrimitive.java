@@ -1,7 +1,7 @@
 package io.github.onran0.retrogltf.loader.structure.mesh;
 
 import io.github.onran0.retrogltf.enums.ElementsType;
-import io.github.onran0.retrogltf.enums.PrimitiveAttributeTypes;
+import io.github.onran0.retrogltf.enums.PrimitiveAttributeType;
 import io.github.onran0.retrogltf.loader.util.JSONUtil;
 import org.json.JSONObject;
 
@@ -14,20 +14,20 @@ public class GLTFMeshPrimitive {
         private final String type;
         private final int accessor;
 
-        private final PrimitiveAttributeTypes regularType;
+        private final PrimitiveAttributeType regularType;
 
         public Attribute(String type, int accessor) {
             this.type = type;
             this.accessor = accessor;
 
-            this.regularType = PrimitiveAttributeTypes.getById(type);
+            this.regularType = PrimitiveAttributeType.getById(type);
         }
 
         public String getType() {
             return type;
         }
 
-        public PrimitiveAttributeTypes getRegularType() {
+        public PrimitiveAttributeType getRegularType() {
             return regularType;
         }
 

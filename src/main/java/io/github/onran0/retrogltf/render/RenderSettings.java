@@ -1,18 +1,18 @@
 package io.github.onran0.retrogltf.render;
 
 public class RenderSettings {
-    public static final RenderSettings BUILTIN = new RenderSettings(BuiltinShaderLoader.getBuiltinProgram(), true);
+    public static final RenderSettings BUILTIN = new RenderSettings(new BuiltinShaderProvider(), true);
 
-    private int shaderProgram;
+    private IShaderProvider shaderProvider;
     private boolean forcedCulling;
 
-    public RenderSettings(int shaderProgram, boolean forcedCulling) {
-        this.shaderProgram = shaderProgram;
+    public RenderSettings(IShaderProvider shaderProvider, boolean forcedCulling) {
+        this.shaderProvider = shaderProvider;
         this.forcedCulling = forcedCulling;
     }
 
-    public int getShaderProgram() {
-        return shaderProgram;
+    public IShaderProvider getShaderProvider() {
+        return shaderProvider;
     }
 
     public boolean isForcedCulling() {
@@ -20,7 +20,7 @@ public class RenderSettings {
     }
 
     public void set(RenderSettings settings) {
-        this.shaderProgram = settings.shaderProgram;
+        this.shaderProvider = settings.shaderProvider;
         this.forcedCulling = settings.forcedCulling;
     }
 }

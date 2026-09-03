@@ -2,6 +2,7 @@ package io.github.onran0.retrogltf.loader;
 
 import io.github.onran0.retrogltf.GLMesh;
 import io.github.onran0.retrogltf.GLMeshPrimitive;
+import io.github.onran0.retrogltf.enums.PrimitiveAttributeType;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFAccessor;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFBufferView;
 import io.github.onran0.retrogltf.loader.structure.mesh.GLTFMesh;
@@ -129,17 +130,29 @@ class MeshLoader {
                 for (GLTFMeshPrimitive.Attribute attribute : attributes) {
                     GLTFAccessor accessor = accessors[attribute.getAccessor()];
 
-                    int loc = attribute.getRegularType().getShaderLocation();
+                    PrimitiveAttributeType type = attribute.getRegularType();
+
+                    int loc = type.getShaderLocation();
                     int stride = views[accessor.getBufferView().get()].getByteStride().get();
 
-                    GL20.glVertexAttribPointer(
-                            loc,
-                            accessor.getType().getNumberOfComponents(),
-                            accessor.getComponentType().getGLType(),
-                            accessor.isNormalized(),
-                            stride,
-                            accessor.getByteOffset()
-                    );
+                    if(type.shouldUseIPointerForVAO()) {
+                        GL30.glVertexAttribIPointer(
+                                loc,
+                                accessor.getType().getNumberOfComponents(),
+                                accessor.getComponentType().getGLType(),
+                                stride,
+                                accessor.getByteOffset()
+                        );
+                    } else {
+                        GL20.glVertexAttribPointer(
+                                loc,
+                                accessor.getType().getNumberOfComponents(),
+                                accessor.getComponentType().getGLType(),
+                                accessor.isNormalized(),
+                                stride,
+                                accessor.getByteOffset()
+                        );
+                    }
 
                     GL20.glEnableVertexAttribArray(loc);
 
@@ -171,16 +184,28 @@ class MeshLoader {
                 for (GLTFMeshPrimitive.Attribute attribute : attributes) {
                     GLTFAccessor accessor = accessors[attribute.getAccessor()];
 
-                    int loc = attribute.getRegularType().getShaderLocation();
+                    PrimitiveAttributeType type = attribute.getRegularType();
 
-                    GL20.glVertexAttribPointer(
-                            loc,
-                            accessor.getType().getNumberOfComponents(),
-                            accessor.getComponentType().getGLType(),
-                            accessor.isNormalized(),
-                            0,
-                            offset
-                    );
+                    int loc = type.getShaderLocation();
+
+                    if(type.shouldUseIPointerForVAO()) {
+                        GL30.glVertexAttribIPointer(
+                                loc,
+                                accessor.getType().getNumberOfComponents(),
+                                accessor.getComponentType().getGLType(),
+                                0,
+                                offset
+                        );
+                    } else {
+                        GL20.glVertexAttribPointer(
+                                loc,
+                                accessor.getType().getNumberOfComponents(),
+                                accessor.getComponentType().getGLType(),
+                                accessor.isNormalized(),
+                                0,
+                                offset
+                        );
+                    }
 
                     GL20.glEnableVertexAttribArray(loc);
 

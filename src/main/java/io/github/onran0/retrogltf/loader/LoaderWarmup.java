@@ -12,6 +12,7 @@ public class LoaderWarmup {
     public static void initializeClasses() {
         PrintStream srcErr = System.err;
 
+        // trick for remove SLF4J warning in console without NOP dependency
         System.setErr(new PrintStream(new OutputStream() {
             @Override
             public void write(int b) { }

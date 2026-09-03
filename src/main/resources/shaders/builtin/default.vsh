@@ -7,11 +7,11 @@ layout(location = 3) in vec2 aTexCoord1;
 layout(location = 0) out vec2 vTexCoord0;
 layout(location = 1) out vec2 vTexCoord1;
 
-uniform mat4 uMatrix;
+uniform mat4 uMVPMatrix;
 
 void main() {
     vTexCoord0 = aTexCoord0;
     vTexCoord1 = aTexCoord1;
 
-    gl_Position = uMatrix * vec4(aPosition, 1.0);
+    gl_Position = uMVPMatrix * vec4(aPosition, 1.0);
 }

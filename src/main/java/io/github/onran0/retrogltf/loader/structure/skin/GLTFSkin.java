@@ -7,24 +7,24 @@ import java.util.Optional;
 
 public class GLTFSkin {
     private final int[] joints;
-    private final int[] inverseBindMatrices;
+    private final Integer inverseBindMatrices;
     private final Integer skeleton;
 
     public GLTFSkin(JSONObject json) {
         this.joints = JSONUtil.toIntArray(json.optJSONArray("joints"));
-        this.inverseBindMatrices = JSONUtil.toIntArray(json.optJSONArray("inverseBindMatrices"));
+        this.inverseBindMatrices = JSONUtil.getNullableInt(json, "inverseBindMatrices");
         this.skeleton = JSONUtil.getNullableInt(json, "skeleton");
     }
 
     public int[] getJoints() {
-        return joints;
+        return this.joints;
     }
 
-    public Optional<int[]> getInverseBindMatrices() {
-        return Optional.ofNullable(inverseBindMatrices);
+    public Optional<Integer> getInverseBindMatrices() {
+        return Optional.ofNullable(this.inverseBindMatrices);
     }
 
     public Optional<Integer> getSkeleton() {
-        return Optional.ofNullable(skeleton);
+        return Optional.ofNullable(this.skeleton);
     }
 }

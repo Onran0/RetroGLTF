@@ -1,15 +1,9 @@
 package io.github.onran0.retrogltf.render;
 
-import io.github.onran0.retrogltf.GLMeshPrimitive;
-import io.github.onran0.retrogltf.Material;
-import io.github.onran0.retrogltf.Node;
+import io.github.onran0.retrogltf.*;
 
-import io.github.onran0.retrogltf.TextureInfo;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.*;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -23,17 +17,18 @@ public class NodeRenderer {
             .order(ByteOrder.nativeOrder())
             .asFloatBuffer();
 
-    private RenderSettings renderSettings;
-
-    private int uMatrixLoc;
-    private int uBaseColorTexCoordIndexLoc;
+    private final RenderSettings renderSettings;
 
     public NodeRenderer() {
         this(RenderSettings.BUILTIN);
     }
 
     public NodeRenderer(RenderSettings renderSettings) {
-        this.setRenderSettings(renderSettings);
+        if(renderSettings == null) {
+            throw new IllegalArgumentException("renderSettings == null");
+        }
+
+        this.renderSettings = renderSettings;
     }
 
     public RenderSettings getRenderSettings() {
@@ -41,19 +36,19 @@ public class NodeRenderer {
     }
 
     public void setRenderSettings(RenderSettings renderSettings) {
-        this.renderSettings = renderSettings;
-
-        int program = renderSettings.getShaderProgram();
-
-        this.uMatrixLoc = GL20.glGetUniformLocation(program, "uMatrix");
-        this.uBaseColorTexCoordIndexLoc = GL20.glGetUniformLocation(program, "uBaseColorTexCoordIndex");
+        this.renderSettings.set(renderSettings);
     }
 
-    public void render(Node node, Matrix4f mvpMatrix) {
+    public void render(Scene scene, Node node, Matrix4f mvpMatrix) {
         if(!node.getMesh().isPresent())
             return;
 
-        GL20.glUseProgram(this.renderSettings.getShaderProgram());
+        int program = this.renderSettings.getShaderProvider().getProgram(node);
+
+        int uMVPMatrixLoc = GL20.glGetUniformLocation(program, "uMVPMatrix");
+        int uBaseColorTexCoordIndexLoc = GL20.glGetUniformLocation(program, "uBaseColorTexCoordIndex");
+
+        GL20.glUseProgram(program);
 
         node.getMatrix(tmpNodeMatrix);
 
@@ -65,7 +60,19 @@ public class NodeRenderer {
 
         tmpMvpMatrix.get(matrixBuffer);
 
-        GL20.glUniformMatrix4(this.uMatrixLoc, false, matrixBuffer);
+        GL20.glUniformMatrix4(uMVPMatrixLoc, false, matrixBuffer);
+
+        if(node.getSkin().isPresent()) {
+            int ubo = scene.getSkinsUBO();
+            FloatBuffer uboData = scene.getSkinsUBOData();
+
+            GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, ubo);
+
+            node.getSkin().get().writeToUBO(uboData);
+
+            GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, 0, uboData);
+            GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 0, ubo);
+        }
 
         GL11.glFrontFace(node.getFrontFaceMode());
 
@@ -77,14 +84,14 @@ public class NodeRenderer {
 
                 TextureInfo baseColor = material.getBaseColor();
 
-                GL20.glUniform1i(this.uBaseColorTexCoordIndexLoc, baseColor.getTexCoordIndex());
+                GL20.glUniform1i(uBaseColorTexCoordIndexLoc, baseColor.getTexCoordIndex());
 
                 useCulling = material.isShouldUseCulling() || this.renderSettings.isForcedCulling();
 
                 GL13.glActiveTexture(GL13.GL_TEXTURE0);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, baseColor.getTexture().getTextureID());
             } else {
-                GL20.glUniform1i(this.uBaseColorTexCoordIndexLoc, 0);
+                GL20.glUniform1i(uBaseColorTexCoordIndexLoc, 0);
 
                 GL13.glActiveTexture(GL13.GL_TEXTURE0);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
@@ -118,6 +125,10 @@ public class NodeRenderer {
             GL30.glBindVertexArray(0);
 
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+        }
+
+        if(node.getSkin().isPresent()) {
+            GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, 0);
         }
 
         GL20.glUseProgram(0);

@@ -3,8 +3,6 @@ package io.github.onran0.retrogltf.loader;
 import io.github.onran0.retrogltf.Material;
 import io.github.onran0.retrogltf.Node;
 import io.github.onran0.retrogltf.loader.structure.scene.GLTFNode;
-import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +15,9 @@ class NodesLoader {
     private final IntermediateMesh[] meshes;
     private final Material[] materials;
 
+    private final Node[] outputIndexableNodes;
+    private final List<Integer> skinnedNodes = new ArrayList<>();
+
     public NodesLoader(
             GLTFParser parser, GLTFNode[] nodes,
             IntermediateMesh[] meshes, Material[] materials
@@ -24,12 +25,26 @@ class NodesLoader {
         this.parser = parser;
         this.nodes = nodes;
 
+        this.outputIndexableNodes = new Node[nodes.length];
+
         this.meshes = meshes;
         this.materials = materials;
     }
 
+    public Node[] getOutputIndexableNodes() {
+        return outputIndexableNodes;
+    }
+
+    public List<Integer> getSkinnedNodes() {
+        return skinnedNodes;
+    }
+
     private Node loadNode(int index, Node parent) {
         GLTFNode node = this.nodes[index];
+
+        if(node.getSkin().isPresent()) {
+            this.skinnedNodes.add(index);
+        }
 
         IntermediateMesh mesh;
         Material[] materials;
@@ -57,6 +72,8 @@ class NodesLoader {
                 node.getLocalMatrix(),
                 parent
         );
+
+        this.outputIndexableNodes[index] = outputNode;
 
         if(node.getChildren().isPresent()) {
             for (int child : node.getChildren().get()) {
