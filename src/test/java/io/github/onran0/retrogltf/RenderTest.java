@@ -1,11 +1,10 @@
 package io.github.onran0.retrogltf;
 
-import io.github.onran0.retrogltf.loader.GLTFLoadException;
-import io.github.onran0.retrogltf.loader.GLTFLoader;
-import io.github.onran0.retrogltf.loader.LoaderWarmup;
-import io.github.onran0.retrogltf.loader.Profiler;
+import io.github.onran0.retrogltf.loader.*;
 import io.github.onran0.retrogltf.render.SceneRenderer;
 import io.github.onran0.retrogltf.util.GLCleaner;
+import io.github.onran0.retrogltf.util.GLOldPipelineUtil;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.json.JSONObject;
 import org.lwjgl.LWJGLException;
@@ -70,17 +69,17 @@ public final class RenderTest {
 
         LoaderWarmup.initializeClasses();
 
-        scene = new GLTFLoader(
-                json, root
-        ).load();
-
-        GLCleaner.freeScene(scene);
+//        scene = new GLTFLoader(
+//                json, root
+//        ).load(new LoadSettings());
+//
+//        GLCleaner.freeScene(scene);
 
         Profiler.clear();
 
         scene = new GLTFLoader(
                 json, root
-        ).load();
+        ).load(new LoadSettings());
 
         Profiler.printMillis();
 
@@ -110,6 +109,8 @@ public final class RenderTest {
         float x = 5, y = 5, z = 5, pitch = 38, yaw = 315;
 
         float time = 0.0f;
+
+        Matrix4f mvpMatrix = new Matrix4f();
 
         while (!Display.isCloseRequested()) {
             if(input) {
@@ -147,7 +148,9 @@ public final class RenderTest {
 //            rightArmNode.setEulerAngles(rightArmNodeEuler);
 //            leftArmNode.setEulerAngles(leftArmNodeEuler);
 
-            sceneRenderer.render(scene);
+            GLOldPipelineUtil.getMVPMatrix(mvpMatrix);
+
+            sceneRenderer.render(scene, mvpMatrix);
 
             time += 1/60f * 2.5f;
 

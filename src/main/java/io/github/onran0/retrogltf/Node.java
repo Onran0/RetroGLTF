@@ -15,6 +15,7 @@ public class Node {
     private final String name;
     private GLMesh mesh;
     private Skin skin;
+    private int shader;
     private final int meshFrontFaceMode;
 
     private final Material[] materials;
@@ -75,6 +76,17 @@ public class Node {
 
     public void setSkin(Skin skin) {
         this.skin = skin;
+    }
+
+    public int getShader() {
+        return this.shader;
+    }
+
+    public void setShader(int shaderId) {
+        if(shaderId < 0)
+            throw new IllegalArgumentException("shaderId must be positive");
+
+        this.shader = shaderId;
     }
 
     public int getFrontFaceMode() {

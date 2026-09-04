@@ -1,8 +1,9 @@
 package io.github.onran0.retrogltf;
 
 import java.nio.FloatBuffer;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class Scene {
@@ -40,6 +41,10 @@ public class Scene {
         return this.skinsUboData;
     }
 
+    public void updateShaders(Function<Node, Integer> shaderProvider) {
+        forEachEveryNode(node -> node.setShader(shaderProvider.apply(node)));
+    }
+
     public Node findNodeByName(String name) {
         return findNode(node -> node.getName().isPresent() && node.getName().get().equals(name));
     }
@@ -58,5 +63,27 @@ public class Scene {
         }
 
         return null;
+    }
+
+    public void forEachTree(Node node, Consumer<Node> consumer) {
+        consumer.accept(node);
+
+        if(!node.getChildren().isEmpty()) {
+            forEachNodesTree(node.getChildren(), consumer);
+        }
+    }
+
+    public void forEachNodesTree(List<Node> nodes, Consumer<Node> consumer) {
+        for(Node node : nodes) {
+            consumer.accept(node);
+
+            if(!node.getChildren().isEmpty()) {
+                forEachNodesTree(node.getChildren(), consumer);
+            }
+        }
+    }
+
+    public void forEachEveryNode(Consumer<Node> consumer) {
+        forEachNodesTree(this.nodes, consumer);
     }
 }

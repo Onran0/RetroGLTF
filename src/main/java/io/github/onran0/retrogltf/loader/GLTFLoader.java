@@ -7,6 +7,7 @@ import io.github.onran0.retrogltf.Scene;
 import io.github.onran0.retrogltf.loader.io.IFileProvider;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFAccessor;
 import io.github.onran0.retrogltf.loader.structure.access.GLTFBufferView;
+import io.github.onran0.retrogltf.render.BuiltinShaderProvider;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -69,7 +70,7 @@ public class GLTFLoader {
         return loadContext;
     }
 
-    public Scene load() throws GLTFLoadException {
+    public Scene load(LoadSettings loadSettings) throws GLTFLoadException {
         Profiler.startTaskTrack(LoaderTaskType.SUB_LOADERS_INVOKER);
 
         this.parser.parse();
@@ -102,11 +103,21 @@ public class GLTFLoader {
             skinsUboData = skinsLoader.getUBOData();
         }
 
-        Profiler.endTaskTrack();
-
-        return new Scene(
+        Scene scene = new Scene(
                 this.parser.getScene().getName().orElse(null), nodes,
                 skinsUbo, skinsUboData
         );
+
+        if(loadSettings.shouldCompileLibraryBuiltinShaders()) {
+            Profiler.startTaskTrack(LoaderTaskType.LIBRARY_BUILTIN_SHADERS_COMPILE);
+
+            scene.updateShaders(BuiltinShaderProvider::getProgram);
+
+            Profiler.endTaskTrack();
+        }
+
+        Profiler.endTaskTrack();
+
+        return scene;
     }
 }

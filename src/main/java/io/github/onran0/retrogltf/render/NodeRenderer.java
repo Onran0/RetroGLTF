@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-public class NodeRenderer {
+class NodeRenderer {
 
     private final Matrix4f tmpNodeMatrix = new Matrix4f();
     private final Matrix4f tmpMvpMatrix = new Matrix4f();
@@ -17,33 +17,19 @@ public class NodeRenderer {
             .order(ByteOrder.nativeOrder())
             .asFloatBuffer();
 
-    private final RenderSettings renderSettings;
+    private final SceneRenderer sceneRenderer;
 
-    public NodeRenderer() {
-        this(RenderSettings.BUILTIN);
-    }
-
-    public NodeRenderer(RenderSettings renderSettings) {
-        if(renderSettings == null) {
-            throw new IllegalArgumentException("renderSettings == null");
-        }
-
-        this.renderSettings = renderSettings;
-    }
-
-    public RenderSettings getRenderSettings() {
-        return renderSettings;
-    }
-
-    public void setRenderSettings(RenderSettings renderSettings) {
-        this.renderSettings.set(renderSettings);
+    public NodeRenderer(SceneRenderer sceneRenderer) {
+        this.sceneRenderer = sceneRenderer;
     }
 
     public void render(Scene scene, Node node, Matrix4f mvpMatrix) {
         if(!node.getMesh().isPresent())
             return;
 
-        int program = this.renderSettings.getShaderProvider().getProgram(node);
+        RenderSettings renderSettings = this.sceneRenderer.getRenderSettings();
+
+        int program = node.getShader();
 
         int uMVPMatrixLoc = GL20.glGetUniformLocation(program, "uMVPMatrix");
         int uBaseColorTexCoordIndexLoc = GL20.glGetUniformLocation(program, "uBaseColorTexCoordIndex");
@@ -86,7 +72,7 @@ public class NodeRenderer {
 
                 GL20.glUniform1i(uBaseColorTexCoordIndexLoc, baseColor.getTexCoordIndex());
 
-                useCulling = material.isShouldUseCulling() || this.renderSettings.isForcedCulling();
+                useCulling = material.isShouldUseCulling() || renderSettings.isForcedCulling();
 
                 GL13.glActiveTexture(GL13.GL_TEXTURE0);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, baseColor.getTexture().getTextureID());

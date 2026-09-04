@@ -3,27 +3,35 @@ package io.github.onran0.retrogltf.render;
 import io.github.onran0.retrogltf.Node;
 import io.github.onran0.retrogltf.Scene;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 
 public class SceneRenderer {
 
-    private final FloatBuffer tmpBuf = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
     private final Matrix4f projMatrix = new Matrix4f();
     private final Matrix4f modelViewMatrix = new Matrix4f();
     private final Matrix4f mvpMatrix = new Matrix4f();
 
     private final NodeRenderer nodeRenderer;
+    private final RenderSettings renderSettings;
 
     public SceneRenderer() {
-        this.nodeRenderer = new NodeRenderer();
+        this(RenderSettings.DEFAULT);
     }
 
-    public NodeRenderer getNodeRenderer() {
-        return nodeRenderer;
+    public SceneRenderer(RenderSettings renderSettings) {
+        if(renderSettings == null) {
+            throw new IllegalArgumentException("renderSettings == null");
+        }
+
+        this.renderSettings = renderSettings;
+        this.nodeRenderer = new NodeRenderer(this);
+    }
+
+    public void setRenderSettings(RenderSettings renderSettings) {
+        this.renderSettings.set(renderSettings);
+    }
+
+    public RenderSettings getRenderSettings() {
+        return renderSettings;
     }
 
     private void renderNode(Scene scene, Node node, Matrix4f mvpMatrix) {
@@ -41,23 +49,5 @@ public class SceneRenderer {
         for(Node node : scene.getNodes()) {
             renderNode(scene, node, mvpMatrix);
         }
-    }
-
-    public void render(Scene scene) {
-        this.tmpBuf.clear();
-        GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, this.tmpBuf);
-        this.tmpBuf.rewind();
-
-        this.projMatrix.set(this.tmpBuf);
-
-        this.tmpBuf.clear();
-        GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, this.tmpBuf);
-        this.tmpBuf.rewind();
-
-        this.modelViewMatrix.set(tmpBuf);
-
-        this.projMatrix.mul(this.modelViewMatrix, this.mvpMatrix);
-
-        render(scene, this.mvpMatrix);
     }
 }
