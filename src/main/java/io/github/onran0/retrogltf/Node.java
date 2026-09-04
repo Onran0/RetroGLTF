@@ -1,5 +1,6 @@
 package io.github.onran0.retrogltf;
 
+import io.github.onran0.retrogltf.render.IShaderProvider;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -15,7 +16,7 @@ public class Node {
     private final String name;
     private GLMesh mesh;
     private Skin skin;
-    private int shader;
+    private int[] shaders;
     private final int meshFrontFaceMode;
 
     private final Material[] materials;
@@ -78,15 +79,42 @@ public class Node {
         this.skin = skin;
     }
 
-    public int getShader() {
-        return this.shader;
+    public int getShadersCount() {
+        return this.shaders.length;
     }
 
-    public void setShader(int shaderId) {
-        if(shaderId < 0)
-            throw new IllegalArgumentException("shaderId must be positive");
+    public int getShader(int index) {
+        return this.shaders[index];
+    }
 
-        this.shader = shaderId;
+    public void setShaders(int[] shaders) {
+        if(shaders == null) {
+            throw new IllegalArgumentException("shaders == null");
+        }
+
+        this.shaders = shaders;
+    }
+
+    public void setShader(int index, int shaderId) {
+        if(shaderId < 0) {
+            throw new IllegalArgumentException("shaderId id must be positive");
+        }
+
+        this.shaders[index] = shaderId;
+    }
+
+    public void updateShaders(IShaderProvider provider) {
+        if(this.mesh != null) {
+            GLMeshPrimitive[] primitives = this.mesh.getPrimitives();
+
+            this.shaders = new int[primitives.length];
+
+            for(int i = 0; i < primitives.length; i++) {
+                this.shaders[i] = provider.getShader(this, primitives[i]);
+            }
+        } else {
+            this.shaders = new int[0];
+        }
     }
 
     public int getFrontFaceMode() {

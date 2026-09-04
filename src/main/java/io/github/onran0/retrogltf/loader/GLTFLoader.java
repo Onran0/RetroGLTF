@@ -111,7 +111,7 @@ public class GLTFLoader {
         if(loadSettings.shouldCompileLibraryBuiltinShaders()) {
             Profiler.startTaskTrack(LoaderTaskType.LIBRARY_BUILTIN_SHADERS_COMPILE);
 
-            scene.updateShaders(BuiltinShaderProvider::getProgram);
+            scene.updateShaders(BuiltinShaderProvider::getShader);
 
             Profiler.endTaskTrack();
         }

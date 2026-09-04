@@ -1,5 +1,6 @@
 package io.github.onran0.retrogltf;
 
+import io.github.onran0.retrogltf.render.IShaderProvider;
 import org.lwjgl.opengl.GL15;
 
 import java.nio.FloatBuffer;
@@ -43,8 +44,8 @@ public class Scene {
         return this.skinsUboData;
     }
 
-    public void updateShaders(Function<Node, Integer> shaderProvider) {
-        forEachEveryNode(node -> node.setShader(shaderProvider.apply(node)));
+    public void updateShaders(IShaderProvider shaderProvider) {
+        forEachEveryNode(node -> node.updateShaders(shaderProvider));
     }
 
     public Node findNodeByName(String name) {

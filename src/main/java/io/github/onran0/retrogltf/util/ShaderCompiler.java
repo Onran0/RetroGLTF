@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL20;
 public class ShaderCompiler {
 
     private static int compileShader(
-            final String content,
+            final CharSequence content,
             final int type
     ) throws ShaderCompileException {
         int shader = GL20.glCreateShader(type);
@@ -22,8 +22,8 @@ public class ShaderCompiler {
     }
 
     public static int createProgram(
-            final String vertexShaderContent,
-            final String fragmentShaderContent
+            final CharSequence vertexShaderContent,
+            final CharSequence fragmentShaderContent
     ) throws ShaderCompileException {
         int program = GL20.glCreateProgram();
 

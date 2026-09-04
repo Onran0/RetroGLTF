@@ -1,5 +1,7 @@
 package io.github.onran0.retrogltf;
 
+import java.util.Objects;
+
 public class Material {
     private TextureInfo baseColor;
     private boolean useCulling;
@@ -27,5 +29,13 @@ public class Material {
 
     public void free() {
         this.baseColor.getTexture().free();
+    }
+
+    public int hashCode() {
+        if(baseColor != null) {
+            return Objects.hash(baseColor.getTexCoordIndex(), true);
+        } else {
+            return 0;
+        }
     }
 }

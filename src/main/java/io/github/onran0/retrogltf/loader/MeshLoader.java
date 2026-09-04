@@ -13,8 +13,7 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 class MeshLoader {
 
@@ -120,6 +119,16 @@ class MeshLoader {
             GL30.glBindVertexArray(vao);
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
 
+            int nextLocation = 0;
+            Map<PrimitiveAttributeType, Integer> attributeLocations = new HashMap<>();
+            List<Map<PrimitiveAttributeType, Integer>> morphTargetsAttributeLocations = null;
+
+            // for reduce shaders compilation count
+            Arrays.sort(attributes, Comparator.comparingInt(
+                            x -> x.getRegularType().getShaderLocationPriority()
+                    )
+            );
+
             if(interleavedBuf != null) {
                 GL15.glBufferData(
                         GL15.GL_ARRAY_BUFFER,
@@ -132,7 +141,7 @@ class MeshLoader {
 
                     PrimitiveAttributeType type = attribute.getRegularType();
 
-                    int loc = type.getShaderLocation();
+                    int loc = nextLocation++;
                     int stride = views[accessor.getBufferView().get()].getByteStride().get();
 
                     if(type.shouldUseIPointerForVAO()) {
@@ -153,6 +162,8 @@ class MeshLoader {
                                 accessor.getByteOffset()
                         );
                     }
+
+                    attributeLocations.put(type, loc);
 
                     GL20.glEnableVertexAttribArray(loc);
 
@@ -186,7 +197,9 @@ class MeshLoader {
 
                     PrimitiveAttributeType type = attribute.getRegularType();
 
-                    int loc = type.getShaderLocation();
+                    int loc = nextLocation++;
+
+
 
                     if(type.shouldUseIPointerForVAO()) {
                         GL30.glVertexAttribIPointer(
@@ -206,6 +219,8 @@ class MeshLoader {
                                 offset
                         );
                     }
+
+                    attributeLocations.put(type, loc);
 
                     GL20.glEnableVertexAttribArray(loc);
 
@@ -267,7 +282,9 @@ class MeshLoader {
                     vao, vbo,
                     ebo, eboIndicesType,
                     elementsType, verticesCount, indicesCount,
-                    localMaterialIndex
+                    localMaterialIndex,
+                    attributeLocations,
+                    morphTargetsAttributeLocations
             );
         }
 

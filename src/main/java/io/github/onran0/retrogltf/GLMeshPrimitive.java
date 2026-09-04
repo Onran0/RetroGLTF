@@ -1,5 +1,12 @@
 package io.github.onran0.retrogltf;
 
+import io.github.onran0.retrogltf.enums.PrimitiveAttributeType;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 public class GLMeshPrimitive {
     private final int vao;
     private final int vbo;
@@ -13,11 +20,16 @@ public class GLMeshPrimitive {
 
     private final int materialIndex;
 
+    private final Map<PrimitiveAttributeType, Integer> attributeLocations;
+    private final List<Map<PrimitiveAttributeType, Integer>> morphTargetsAttributeLocations;
+
     public GLMeshPrimitive(
             int vao, int vbo,
             int ebo, int eboIndicesType,
             int elementsType, int verticesCount, int indicesCount,
-            int materialIndex
+            int materialIndex,
+            Map<PrimitiveAttributeType, Integer> attributeLocations,
+            List<Map<PrimitiveAttributeType, Integer>> morphTargetsAttributeLocations
     ) {
         this.vao = vao;
         this.vbo = vbo;
@@ -30,6 +42,20 @@ public class GLMeshPrimitive {
         this.indicesCount = indicesCount;
 
         this.materialIndex = materialIndex;
+
+        this.attributeLocations = Collections.unmodifiableMap(attributeLocations);
+
+        if(morphTargetsAttributeLocations != null) {
+            List<Map<PrimitiveAttributeType, Integer>> immutableMorphsLocs = new ArrayList<>();
+
+            for(Map<PrimitiveAttributeType, Integer> morphLocs : morphTargetsAttributeLocations) {
+                immutableMorphsLocs.add(Collections.unmodifiableMap(morphLocs));
+            }
+
+            this.morphTargetsAttributeLocations = Collections.unmodifiableList(immutableMorphsLocs);
+        } else {
+            this.morphTargetsAttributeLocations = null;
+        }
     }
 
     public boolean hasEBO() {
@@ -66,5 +92,17 @@ public class GLMeshPrimitive {
 
     public int getMaterialIndex() {
         return this.materialIndex;
+    }
+
+    public Map<PrimitiveAttributeType, Integer> getAttributeLocations() {
+        return this.attributeLocations;
+    }
+
+    public List<Map<PrimitiveAttributeType, Integer>> getMorphTargetsAttributeLocations() {
+        return this.morphTargetsAttributeLocations;
+    }
+
+    public boolean hasMorphTargets() {
+        return this.morphTargetsAttributeLocations != null && !morphTargetsAttributeLocations.isEmpty();
     }
 }

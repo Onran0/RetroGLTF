@@ -29,13 +29,6 @@ class NodeRenderer {
 
         RenderSettings renderSettings = this.sceneRenderer.getRenderSettings();
 
-        int program = node.getShader();
-
-        int uMVPMatrixLoc = GL20.glGetUniformLocation(program, "uMVPMatrix");
-        int uBaseColorTexCoordIndexLoc = GL20.glGetUniformLocation(program, "uBaseColorTexCoordIndex");
-
-        GL20.glUseProgram(program);
-
         node.getMatrix(tmpNodeMatrix);
 
         tmpMvpMatrix.set(mvpMatrix);
@@ -46,23 +39,41 @@ class NodeRenderer {
 
         tmpMvpMatrix.get(matrixBuffer);
 
-        GL20.glUniformMatrix4(uMVPMatrixLoc, false, matrixBuffer);
+        boolean hasSkin = node.getSkin().isPresent();
 
-        if(node.getSkin().isPresent()) {
-            int ubo = scene.getSkinsUBO();
+        int skinsUbo = 0;
+
+        if(hasSkin) {
+            skinsUbo = scene.getSkinsUBO();
+
             FloatBuffer uboData = scene.getSkinsUBOData();
 
-            GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, ubo);
+            GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, skinsUbo);
 
             node.getSkin().get().writeToUBO(uboData);
 
             GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, 0, uboData);
-            GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 0, ubo);
         }
 
         GL11.glFrontFace(node.getFrontFaceMode());
 
-        for(GLMeshPrimitive primitive : node.getMesh().get().getPrimitives()) {
+        GLMeshPrimitive[] primitives = node.getMesh().get().getPrimitives();
+
+        for(int i = 0; i < primitives.length; i++) {
+            GLMeshPrimitive primitive = primitives[i];
+
+            int program = node.getShader(i);
+
+            int uMVPMatrixLoc = GL20.glGetUniformLocation(program, "uMVPMatrix");
+
+            GL20.glUseProgram(program);
+
+            GL20.glUniformMatrix4(uMVPMatrixLoc, false, matrixBuffer);
+
+            if(hasSkin) {
+                GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 0, skinsUbo);
+            }
+
             boolean useCulling = false;
 
             if(primitive.getMaterialIndex() != -1) {
@@ -70,15 +81,11 @@ class NodeRenderer {
 
                 TextureInfo baseColor = material.getBaseColor();
 
-                GL20.glUniform1i(uBaseColorTexCoordIndexLoc, baseColor.getTexCoordIndex());
-
                 useCulling = material.isShouldUseCulling() || renderSettings.isForcedCulling();
 
                 GL13.glActiveTexture(GL13.GL_TEXTURE0);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, baseColor.getTexture().getTextureID());
             } else {
-                GL20.glUniform1i(uBaseColorTexCoordIndexLoc, 0);
-
                 GL13.glActiveTexture(GL13.GL_TEXTURE0);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
             }
@@ -111,12 +118,12 @@ class NodeRenderer {
             GL30.glBindVertexArray(0);
 
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+
+            GL20.glUseProgram(0);
         }
 
-        if(node.getSkin().isPresent()) {
+        if(hasSkin) {
             GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, 0);
         }
-
-        GL20.glUseProgram(0);
     }
 }

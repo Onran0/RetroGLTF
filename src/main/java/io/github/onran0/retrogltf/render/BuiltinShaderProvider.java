@@ -1,20 +1,23 @@
 package io.github.onran0.retrogltf.render;
 
+import io.github.onran0.retrogltf.GLMeshPrimitive;
 import io.github.onran0.retrogltf.Node;
 
 public class BuiltinShaderProvider {
 
-    public static int getProgram(Node node) {
+    public static int getShader(Node node, GLMeshPrimitive primitive) {
+        BuiltinVertexShaderType vertShader;
+        BuiltinFragmentShaderType fragShader =  BuiltinFragmentShaderType.UNLIT;
+
         if(node.getSkin().isPresent()) {
-            return BuiltinShaderLoader.getBuiltinProgram(
-                    BuiltinVertexShaderType.SKIN_0_256,
-                    BuiltinFragmentShaderType.UNLIT
-            );
+            vertShader = BuiltinVertexShaderType.SKIN_0_256;
         } else {
-            return BuiltinShaderLoader.getBuiltinProgram(
-                    BuiltinVertexShaderType.DEFAULT,
-                    BuiltinFragmentShaderType.UNLIT
-            );
+            vertShader = BuiltinVertexShaderType.DEFAULT;
         }
+
+        return BuiltinShaderLoader.getBuiltinProgram(
+                vertShader, fragShader,
+                node, primitive
+        );
     }
 }
