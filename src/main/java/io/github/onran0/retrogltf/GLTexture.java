@@ -1,5 +1,7 @@
 package io.github.onran0.retrogltf;
 
+import org.lwjgl.opengl.GL11;
+
 public class GLTexture {
     public static GLTexture MISSING = new GLTexture(0);
 
@@ -11,5 +13,9 @@ public class GLTexture {
 
     public int getTextureID() {
         return textureId;
+    }
+
+    public void free() {
+        GL11.glDeleteTextures(this.textureId);
     }
 }

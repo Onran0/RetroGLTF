@@ -259,6 +259,16 @@ public class Node {
         updateGlobalMatrix();
     }
 
+    public void free() {
+        if(this.mesh != null)
+            this.mesh.free();
+
+        for(Material material : this.materials) {
+            if(material != null)
+                material.free();
+        }
+    }
+
     private void composeLocalMatrix() {
         this.localMatrix.identity();
         this.localMatrix.translate(this.position);

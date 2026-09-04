@@ -1,5 +1,7 @@
 package io.github.onran0.retrogltf;
 
+import org.lwjgl.opengl.GL15;
+
 import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.function.Consumer;
@@ -85,5 +87,13 @@ public class Scene {
 
     public void forEachEveryNode(Consumer<Node> consumer) {
         forEachNodesTree(this.nodes, consumer);
+    }
+
+    public void free() {
+        forEachEveryNode(Node::free);
+
+        if(this.skinsUbo != 0) {
+            GL15.glDeleteBuffers(this.skinsUbo);
+        }
     }
 }

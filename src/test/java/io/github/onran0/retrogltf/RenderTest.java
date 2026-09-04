@@ -2,7 +2,6 @@ package io.github.onran0.retrogltf;
 
 import io.github.onran0.retrogltf.loader.*;
 import io.github.onran0.retrogltf.render.SceneRenderer;
-import io.github.onran0.retrogltf.util.GLCleaner;
 import io.github.onran0.retrogltf.util.GLOldPipelineUtil;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
